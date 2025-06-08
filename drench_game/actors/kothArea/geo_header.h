@@ -1,0 +1,14 @@
+extern const GeoLayout kothArea_001_switch_opt1[];
+extern const GeoLayout kothArea_geo[];
+extern Lights1 kothArea_red_lights;
+extern Lights1 kothArea_green_lights;
+extern u8 kothArea_kothTex_ia8[];
+extern Vtx kothArea_000_displaylist_001_mesh_layer_4_vtx_0[128];
+extern Gfx kothArea_000_displaylist_001_mesh_layer_4_tri_0[];
+extern Gfx mat_kothArea_red[];
+extern Gfx mat_revert_kothArea_red[];
+extern Gfx mat_kothArea_green[];
+extern Gfx mat_revert_kothArea_green[];
+extern Gfx kothArea_000_displaylist_001_mesh_layer_4[];
+extern Gfx kothArea_000_displaylist_001_mesh_layer_4_mat_override_green_0[];
+extern Gfx kothArea_material_revert_render_settings[];

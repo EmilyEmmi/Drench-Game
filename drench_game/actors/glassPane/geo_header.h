@@ -1,0 +1,12 @@
+extern const GeoLayout glassPane_001_switch_opt1[];
+extern const GeoLayout glassPane_geo[];
+extern u8 glassPane_SUPER_MARIO_64_FE55B4F9_3_2_all_ia8[];
+extern u8 glassPane_metal_rgba16[];
+extern Vtx glassPane_000_displaylist_001_mesh_layer_5_vtx_0[16];
+extern Gfx glassPane_000_displaylist_001_mesh_layer_5_tri_0[];
+extern Gfx mat_glassPane_f3dlite_material_021[];
+extern Gfx mat_revert_glassPane_f3dlite_material_021[];
+extern Gfx mat_glassPane_Fast3D_Material[];
+extern Gfx mat_revert_glassPane_Fast3D_Material[];
+extern Gfx glassPane_000_displaylist_001_mesh_layer_5[];
+extern Gfx glassPane_000_displaylist_001_mesh_layer_5_mat_override_Fast3D_Material_0[];
