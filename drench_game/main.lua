@@ -1826,7 +1826,7 @@ function on_packet_kill(data, self)
     if not np then return end
     local name = network_get_player_text_color_string(np.localIndex) .. np.name
     djui_chat_message_create("\\#ffff50\\You killed "..name.."!")
-    if gGlobalSyncTable.freezeRoundTimer then
+    if not gGlobalSyncTable.freezeRoundTimer then
         gMarioStates[0].healCounter = 31
     end
 end

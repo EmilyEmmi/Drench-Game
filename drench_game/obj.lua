@@ -627,7 +627,7 @@ function koth_area_loop(o)
 
     local inside = false
     local m = gMarioStates[0]
-    if (is_player_active(m) ~= 0) and m.marioObj and lateral_dist_between_objects(m.marioObj, o) < 500 then
+    if (is_player_active(m) ~= 0) and m.marioObj and m.pos.y >= o.oPosY and lateral_dist_between_objects(m.marioObj, o) < 500 then
         inside = true
     end
 
