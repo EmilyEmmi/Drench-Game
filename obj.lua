@@ -505,9 +505,9 @@ function rg_doll_loop(o)
 end
 
 function stop_green_light_sfx()
-    stop_stream_sfx("greenLight")
-    stop_stream_sfx("greenLightShort")
-    stop_stream_sfx("greenLightLong")
+    stop_stream_sfx("sound-light-green")
+    stop_stream_sfx("sound-light-green-short")
+    stop_stream_sfx("sound-light-green-long")
 end
 
 id_bhvRGDoll = hook_behavior(nil, OBJ_LIST_GENACTOR, false, rg_doll_init, rg_doll_loop, "bhvRGDoll")
