@@ -4,10 +4,10 @@
 local musicBitrate = 22050
 local musicData = {
     lobby = {audio = audio_stream_load("music-lobby.ogg"), loop = true},
-    dire = {audio = audio_stream_load("music-dire.ogg"), loop = true, loopStart = 49.630, loopEnd = 152.967},
-    scores = {audio = audio_stream_load("music-scores.ogg"), loop = true, loopStart = 20.029, loopEnd = -1},
+    dire = {audio = audio_stream_load("music-dire.ogg"), loop = true, loopStart = 49.630, loopEnd = 153.967},
+    scores = {audio = audio_stream_load("music-scores.ogg"), loop = true, loopStart = 20.029, loopEnd = -0.2},
     mingle = {audio = audio_stream_load("music-mingle.ogg")},
-    final = {audio = audio_stream_load("music-final.ogg"), loop = true, loopStart = 36.647, loopEnd = 162.314},
+    final = {audio = audio_stream_load("music-final.ogg"), loop = true, loopStart = 36.647, loopEnd = 162.315},
     slider = {audio = audio_stream_load("music-slider-madness-1.ogg"), loop = true, loopStart = 3.256, loopEnd = -1},
     slider2 = {audio = audio_stream_load("music-slider-madness-2.ogg"), loop = true},
     slider3 = {audio = audio_stream_load("music-slider-madness-3.ogg"), loop = true},
@@ -66,7 +66,11 @@ function update_music(music)
         audio_stream_play(thisMusic.audio, true, 1)
         audio_stream_set_looping(thisMusic.audio, thisMusic.loop or false)
         if thisMusic.loopEnd then
-            audio_stream_set_loop_points(thisMusic.audio, (thisMusic.loopStart or 0) * musicBitrate, (thisMusic.loopEnd or -1) * musicBitrate)
+            local loopEnd = (thisMusic.loopEnd or -1)
+            if loopEnd ~= -1 then
+                loopEnd = loopEnd * musicBitrate
+            end
+            audio_stream_set_loop_points(thisMusic.audio, (thisMusic.loopStart or 0) * musicBitrate, loopEnd)
         end
         audio_stream_set_position(thisMusic.audio, 0)
     end
@@ -90,6 +94,11 @@ function update_music(music)
     end
     audio_stream_set_volume(thisMusic.audio, musicVolume)
     audio_stream_set_frequency(thisMusic.audio, musicFrequency)
+
+    if DEBUG_MODE and gControllers[0].buttonDown & L_TRIG ~= 0 then
+        audio_stream_set_frequency(thisMusic.audio, musicFrequency * 10)
+        log_to_console(tostring(audio_stream_get_position(thisMusic.audio) * 48000 / musicBitrate))
+    end
 
     -- pause at volume 0
     if musicVolume == 0 then
@@ -143,12 +152,12 @@ end
 -- does this even work?
 function test_loop_point()
     local thisMusic = musicData[currentMusic]
-    if not (thisMusic and thisMusic.loopEnd) then
+    if (not (thisMusic and thisMusic.loopEnd)) or thisMusic.loopEnd == -1 then
         djui_chat_message_create("No point to test...")
         return true
     end
     -- set 3 seconds before loop?
-    audio_stream_set_position(thisMusic.audio, thisMusic.loopEnd // 44100 - 3)
+    audio_stream_set_position(thisMusic.audio, (thisMusic.loopEnd - 3))
     return true
 end
 if DEBUG_MODE then
