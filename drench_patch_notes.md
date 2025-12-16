@@ -59,12 +59,12 @@ v1.2 (WIP)
 - Bug Fixes:
     - Removed an exploit to grant your team multiplied points
     - Fixed players sometimes earning way more points than they should (TO TEST)
-    - Fixed players becoming invincible if too many players spectate them (TO TEST)
+    - Fixed players becoming invincible if too many players spectate them (also fixed by Coop itself)
     - Fixed rejoining often causing elimination even if you rejoin on the same exact round (TO TEST)
     - Fixed Final Duel with teams picking two people on the same team
     - Fixed the ending only showing one player from the winning team of a Final Duel
     - Fixed new players sometimes being un-eliminated by default, causing the music in certain minigames to briefly change
-    - Fixed player spawn positions sometimes not being synced between players (TO TEST)
+    - Fixed player spawn positions sometimes not being synced between players (NOT ACTUALLY FIXED???)
     - More desyncs will be corrected automatically; you can also use the /desync command (host or moderator only) to fix problems
     - Fixed some collision issues on Toad Town and Koopa Keep
     - Fixed Random game selection sometimes skipping certain modes
@@ -76,10 +76,10 @@ v1.2 (WIP)
         - More Star Steal/Bomb Tag maps?
             - Gamble Gallery: Similar theming to Glass Bridge with dice and card obstacles (also like that old sticker star screenshot)
         - I did random 8 games and it picked KOTH twice? Look into this (FIXED?)
-        - Patch hat exploit (unless v1.4 of coop comes out first, then I can skip this)
-        - PRIORITY: Victory screen is 100% borked, as are many other things. I think the desync fixes might be to blame? (FIXED?)
         - No points earned when playing All Duel on bizzare's stream (prob also desync)
         - Test Elimination Mode a bit more, especially with dice block battle
+        - PRIORITY: Players are reviving in certain games now? Seen on RLGL and Lights Out
+        - Add "their score" and "safe score" when spectating
     - Bomb Tag:
         - Is bomb assignment borked?
     - King Of The Hill:
@@ -93,6 +93,7 @@ v1.2 (WIP)
         - Sugar Honeycombs/Dalgona: Similar to Crazy Cutters. Trace with feet, or with a jackhammer? Also want player interaction somehow
             - Also keyboard players exist :/ maybe they could play with the mouse?
         - Cannon game (TheIncredibleHolc's idea): Shoot target with cannon to get points. Furthest dies? (idk about this one)
+
 v1.1
 - Attacking your teammates in Lights Out will no longer give points, and killing your teammates in Duels will no longer count as your kill, meaning you won't get a full heal.
 - Fixed all players earning points in Free-for-All duels, as if they were on the same team

@@ -990,6 +990,7 @@ function attempt_raise_score(sMario, value_, capValue_)
         end
         if not capNotify then
             capNotify = true
+            capValue = capValue // 10
             djui_chat_message_create("\\#ff5050\\You're ahead by "..capValue.." points! Score capped to keep things fair.")
         end
     else
