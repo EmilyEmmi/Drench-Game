@@ -15,8 +15,10 @@ v1.2 (WIP)
     - "Random" selection shouldn't pick the same minigame twice in a row anymore, and it will shuffle through all minigames (except Duel) before picking the duplicates
     - Changing minigame selection to "All" mid-game will now automatically set the max minigame amount.
     - The default minigame selection is now set to "Random" with 5 minigames instead of "All".
-        - FOR HEADLESS SERVERS: If you'd like to adjust game settings, update your mod storage (easiest way is to manually load Drench Game, change the settings as the host, and then transfer that storage to your server).
+        - Note that "Final Duel" is still on by default, meaning the last game will always be a Duel between the top two players.
+        - FOR HEADLESS SERVERS: If you'd like to adjust game settings, update your mod storage (easiest way is to manually load Drench Game, change the settings as the host, and then transfer that storage to your server). If that doesn't work, you can edit main.lua directly, but be careful!
     - Changed elimination calculation for round-based games in Elimination Mode so minigames won't always end after one round.
+    - In Team Mode, when a player disconnects, their points are distributed across their remaining teammates so that their team won't lose points overall. (TO TEST)
     - Glass Bridge:
         - Players will be eliminated after not making progress every 20 seconds instead of every 30 seconds (for the first round, it's 10 seconds).
         - Reduced knockback by half
@@ -24,6 +26,7 @@ v1.2 (WIP)
     - Red Light, Green Light
         - Adjusted points a bit; players who fail to reach the end can only earn 15 points max (still based on distance), and players who reach the end will still receive 20.
         - Toad's eye level was moved down by 200 units, and the position checked for was moved down by 20 units. This means it should be much easier to hide behind objects.
+        - Toad kills players 7 frames after fully turning around instead of only 5.
     - Star Steal:
         - The first round is now 1 minute instead of 2 minutes.
         - Points are now counted in tenths of a second instead of whole seconds.
@@ -70,6 +73,9 @@ v1.2 (WIP)
     - Fixed Random game selection sometimes skipping certain modes
     - Glass Bridge:
         - Fixed a bug where spectating a falling player after reaching the end could cause you to lose as well
+- Backend Changes
+    - The sound folder was reduced by over 20 MB!!!
+        - This was done by compressing/trimming the gigantic audio files (THANK YOU SQUISHY!!!)
 - TODO:
     - Misc:
         - Timer options: I think a per round time and number of rounds will be enough. Duels can also have best of setting
@@ -78,7 +84,7 @@ v1.2 (WIP)
         - I did random 8 games and it picked KOTH twice? Look into this (FIXED?)
         - No points earned when playing All Duel on bizzare's stream (prob also desync)
         - Test Elimination Mode a bit more, especially with dice block battle
-        - PRIORITY: Players are reviving in certain games now? Seen on RLGL and Lights Out
+        - PRIORITY: Players are reviving in certain games now? Seen on RLGL and Lights Out (maybe fixed?)
         - Add "their score" and "safe score" when spectating
     - Bomb Tag:
         - Is bomb assignment borked?

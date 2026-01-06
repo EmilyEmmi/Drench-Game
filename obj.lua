@@ -450,7 +450,7 @@ function rg_doll_loop(o)
                 local colData = collision_find_surface_on_ray(startPos.x, startPos.y, startPos.z, endPos.x - startPos.x, endPos.y - startPos.y, endPos.z - startPos.z)
                 if colData == nil or colData.surface == nil then
                     o.oBobombBuddyCannonStatus = o.oBobombBuddyCannonStatus + 1
-                    if o.oBobombBuddyCannonStatus >= 5 and (m.action & ACT_FLAG_STATIONARY == 0 or m.action & ACT_FLAG_ATTACKING ~= 0) and (math.abs(m.forwardVel) > 2 or math.abs(m.vel.y) > 1) then
+                    if o.oBobombBuddyCannonStatus >= 7 and (m.action & ACT_FLAG_STATIONARY == 0 or m.action & ACT_FLAG_ATTACKING ~= 0) and (math.abs(m.forwardVel) > 2 or math.abs(m.vel.y) > 1) then
                         eliminate_mario(m)
                         -- points based on distance
                         local spawnPos = m.spawnInfo.startPos

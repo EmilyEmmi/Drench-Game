@@ -39,6 +39,7 @@ local hud_hints = {
     "You have to look out for-a more than just players in Star Steal! If you fall into lava, you'll also lose the Star-a! Be careful!",
     "I'ma Wario, and I'ma gonna win Duels with my exclusive info! You can get a full heal if you take out another player. It's the perfect strategy, since I'm the best brawler around!",
     "This mod is brought to you by our (totally legit) sponsors from the Squeex YouTube community! You can see their ads on the monitor in the lobby.",
+    "This audio files used to take up 23.7 MB! It took ages to download. After Squishy trimmed and compressed all of the audio, this size was reduced to just over 2.5 MB. Wow...",
 }
 function on_hud_render()
     djui_hud_set_resolution(RESOLUTION_N64)
@@ -976,7 +977,7 @@ menu_data = {
                 end
             end,
             true,
-            currNum =  gGlobalSyncTable.teamCount,
+            currNum = gGlobalSyncTable.teamCount,
             minNum = 0,
             maxNum = 8,
             excludeNum = 1,

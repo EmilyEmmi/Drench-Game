@@ -1,5 +1,5 @@
 -- name: \\#00ffd5\\Drench Game v1.2 (beta)
--- description: Squid Game in Mario 64!\n\nCommissioned by Drenchy\nInspired by Dani's \"Crab Game\"\n\nProgramming: EmilyEmmi\n\nMaps: biobak, EmilyEmmi, Woissil\n\nSoundtrack: murioz, Awesome Seal Guy (YT)\n\nVoice Acting:\nEspi as Toad\nSqueex as Mingle Callout\nTrashcam as Waluigi\n\nAds: Squeex's Community
+-- description: Squid Game in Mario 64!\n\nCommissioned by Drenchy\nInspired by Dani's \"Crab Game\"\n\nProgramming: EmilyEmmi\n\nMaps: biobak, EmilyEmmi, Woissil\n\nSoundtrack: murioz, Awesome Seal Guy (YT)\n\nVoice Acting:\nEspi as Toad\nSqueex as Mingle Callout\nTrashcam as Waluigi\n\nAds: Squeex's Community\n\nSpecial Thanks: Squishy
 -- category: gamemode
 -- incompatible: gamemode
 -- pausable: false
@@ -591,6 +591,8 @@ GAME_MODE_DATA = {
                                 })
                             end
                         end
+                    else
+                        desyncTimer = 0
                     end
                 end
             end
@@ -1071,7 +1073,7 @@ function mario_update(m)
         else
             desyncTimer = 0
         end
-        if desyncTimer >= 30 then
+        if desyncTimer >= 90 then
             desyncTimer = 0
             if network_is_server() then
                 on_packet_request_desync_fix({}, true)
@@ -1312,6 +1314,8 @@ function mario_update(m)
                         from = network_global_index_from_local(0),
                     })
                 end
+            else
+                desyncTimer = 0
             end
 
             gServerSettings.playerInteractions = PLAYER_INTERACTIONS_NONE
@@ -1736,7 +1740,6 @@ function update()
                 local didMultiplier = false
                 for_each_connected_player(function(i)
                     local sMario = gPlayerSyncTable[i]
-                    sMario.multiplier = 1
                     if sMario.points == nil then sMario.points = 0 end
                     if (not sMario.eliminated) and (gData.victoryFunc == nil or sMario.victory) then
                         if gData.pointCalcFunc then
@@ -1753,6 +1756,8 @@ function update()
                     if sMario.team and teamMultiplier[sMario.team] and teamMultiplier[sMario.team] ~= 1 then
                         sMario.multiplier = teamMultiplier[sMario.team]
                         didMultiplier = true
+                    else
+                        sMario.multiplier = 1
                     end
                 end)
                 if didMultiplier and not is_final_duel() then
@@ -2069,6 +2074,52 @@ function on_player_disconnected(m)
         roundScore = 0
         eliminated = true
     end
+
+    -- In team mode, distribute points to other players on team on disconnect
+    if gGlobalSyncTable.teamCount ~= 0 and sMario.team ~= 0 then
+        local teammates = {}
+        local points = sMario.points or 0
+        if gGlobalSyncTable.gameState == GAME_STATE_MINI_END then
+            points = points + (sMario.earnedPoints or 0)
+        end
+
+        if points ~= 0 then
+            for i=0,MAX_PLAYERS-1 do
+                local np2 = gNetworkPlayers[i]
+                local sMario2 = gPlayerSyncTable[i]
+                if i ~= m.playerIndex and np2.connected and sMario2.team == sMario.team then
+                    table.insert(teammates, i)
+                end
+            end
+
+            if #teammates ~= 0 then
+                local name = network_get_player_text_color_string(m.playerIndex) .. gNetworkPlayers[m.playerIndex].name
+                local teamName = TEAM_DATA[sMario.team][3] or "???"
+                djui_chat_message_create(name .. "'s\\#ffff50\\ points were distributed among "..teamName.."\\#ffff50\\.")
+
+                if network_is_server() then
+                    -- Reset points so we don't get them back when rejoining
+                    sMario.points = 0
+                    sMario.earnedPoints = 0
+
+                    -- Distrubute points as evenly as possible
+                    -- extra points are given by index priority
+                    local pointsPerPlayer = points // #teammates
+                    local extra = points % #teammates
+                    for i,index in ipairs(teammates) do
+                        local sMario2 = gPlayerSyncTable[index]
+                        local newPoints = pointsPerPlayer
+                        if extra ~= 0 then
+                            newPoints = newPoints + 1
+                            extra = extra - 1
+                        end
+                        sMario2.points = sMario2.points + newPoints
+                    end
+                end
+            end
+        end
+    end
+
     if rejoinID and ((not eliminated) or sMario.points ~= 0 or sMario.earnedPoints ~= 0 or roundScore ~= 0) then
         local name = network_get_player_text_color_string(m.playerIndex) .. gNetworkPlayers[m.playerIndex].name
         djui_chat_message_create(name .. "\\#ffff50\\ can rejoin to restore their progress.")
@@ -2359,7 +2410,7 @@ function on_packet_desync_fix(data, self)
     for field, value in pairs(data) do
         --print(field, value, data.player)
         if field ~= "id" and field ~= "player" and field:sub(1, 1) ~= "_" and value ~= nil then
-            syncTable[field] = value
+            rawset(syncTable._table, field, value) -- set without sending packet
         end
     end
 end
