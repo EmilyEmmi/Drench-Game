@@ -18,7 +18,7 @@ v1.2 (WIP)
         - Note that "Final Duel" is still on by default, meaning the last game will always be a Duel between the top two players.
         - FOR HEADLESS SERVERS: If you'd like to adjust game settings, update your mod storage (easiest way is to manually load Drench Game, change the settings as the host, and then transfer that storage to your server). If that doesn't work, you can edit main.lua directly, but be careful!
     - Changed elimination calculation for round-based games in Elimination Mode so minigames won't always end after one round.
-    - In Team Mode, when a player disconnects, their points are distributed across their remaining teammates so that their team won't lose points overall. (TO TEST)
+    - In Team Mode, when a player disconnects, their points are distributed across their remaining teammates so that their team won't lose points overall.
     - Glass Bridge:
         - Players will be eliminated after not making progress every 20 seconds instead of every 30 seconds (for the first round, it's 10 seconds).
         - Reduced knockback by half
@@ -41,6 +41,7 @@ v1.2 (WIP)
         - When there is only 1:30 left, numbers will be called more quickly.
     - Lights Out:
         - You earn a point for every 2 damage dealt instead of 4.
+        - Made chains a bit more slippery so you can't camp on them as easily.
     - Duel:
         - Team games are now Best of 3 instead of Best of 5.
         - Final Duel can now be selected with 2 teams, but ONLY if Elimination Mode is enabled.
@@ -93,7 +94,7 @@ v1.2 (WIP)
         - Collision is also pretty jank still
         - More routes/platforming (I suck at blender though, idk what I'm going to do about this)
     - Lights Out:
-        - Possible bug where you can stay on chains forever
+        - Possible bug where you can stay on chains forever (fixed?)
     - NEW GAMES??? (maybe)
         - Island game from crab game I can't remember the name of: Pretty similar to Hexagon Heat. Avoid the sinking platforms!
         - Sugar Honeycombs/Dalgona: Similar to Crazy Cutters. Trace with feet, or with a jackhammer? Also want player interaction somehow

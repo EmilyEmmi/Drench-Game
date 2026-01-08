@@ -328,6 +328,7 @@ GAME_MODE_DATA = {
             if m.action == ACT_LAVA_BOOST then
                 set_to_spawn_pos(m, true)
                 if not sMario.holdingBomb then
+                    m.freeze = 30
                     set_mario_action(m, ACT_GB_FALL, 0)
                 end
             end
@@ -1122,7 +1123,7 @@ function mario_update(m)
         marioPoleTime[m.playerIndex] = marioPoleTime[m.playerIndex] + 1
         local downVel = 0
         if marioPoleTime[m.playerIndex] > 150 then
-            downVel = math.min((marioPoleTime[m.playerIndex] - 150) // 8, 24)
+            downVel = math.min((marioPoleTime[m.playerIndex] - 150) // 8, 30)
         end
         
         if downVel > 0 then
@@ -2180,13 +2181,13 @@ end
 
 hook_event(HOOK_BEFORE_SET_MARIO_ACTION, before_set_mario_action)
 
--- custom action when losing Glass Bridge
+-- custom action when losing Glass Bridge, also used in Bomb Tag when respawning while not holding a bomb
 ---@param m MarioState
 function act_gb_fall(m)
     m.actionTimer = m.actionTimer + 1
     play_character_sound_if_no_flag(m, CHAR_SOUND_WAAAOOOW, MARIO_MARIO_SOUND_PLAYED)
 
-    common_air_action_step(m, ACT_HARD_FORWARD_GROUND_KB, CHAR_ANIM_AIRBORNE_ON_STOMACH, AIR_STEP_CHECK_LEDGE_GRAB);
+    common_air_action_step(m, ACT_HARD_FORWARD_GROUND_KB_INTERACTABLE, CHAR_ANIM_AIRBORNE_ON_STOMACH, AIR_STEP_CHECK_LEDGE_GRAB);
     m.marioObj.header.gfx.angle.x = m.actionTimer * 0x1000 - 0x4000
     m.marioObj.header.gfx.angle.y = m.faceAngle.y + m.actionTimer * 0x800
     m.marioObj.header.gfx.angle.z = m.actionTimer * 0x1200
@@ -2195,6 +2196,21 @@ end
 
 ACT_GB_FALL = allocate_mario_action(ACT_GROUP_AIRBORNE | ACT_FLAG_AIR | ACT_FLAG_ALLOW_VERTICAL_WIND_ACTION)
 hook_mario_action(ACT_GB_FALL, act_gb_fall)
+
+-- custom action when landing after ACT_GB_FALL, duplicate of ACT_HARD_FORWARD_GROUND_KB but without invulnerable flags
+---@param m MarioState
+function act_hard_forward_ground_kb_interactable(m)
+    if (not m) then return 0 end
+    local animFrame = common_ground_knockback_action(m, CHAR_ANIM_LAND_ON_STOMACH, 21, 1, m.actionArg)
+    if (animFrame == 23 and m.health < 0x100) then
+        set_mario_action(m, ACT_DEATH_ON_STOMACH, 0)
+    end
+
+    return 0
+end
+
+ACT_HARD_FORWARD_GROUND_KB_INTERACTABLE = allocate_mario_action(ACT_GROUP_MOVING | ACT_FLAG_MOVING)
+hook_mario_action(ACT_HARD_FORWARD_GROUND_KB_INTERACTABLE, act_hard_forward_ground_kb_interactable)
 
 -- custom action for end sequence
 ---@param m MarioState
