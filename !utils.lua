@@ -328,14 +328,15 @@ function calculate_players_to_eliminate(ignoreEliminated, forceCalc)
 end
 
 -- eliminates a player, setting their round eliminated field as well as their eliminated field
--- set roundOffset to offset what "round" a player is considered to be eliminated
-function eliminate_mario(m, placement)
+-- also sets roundEliminated to their placement if this game uses placement points
+function eliminate_mario(m)
     local sMario = gPlayerSyncTable[m.playerIndex]
     if not sMario.eliminated then
         sMario.eliminated = true
         sMario.roundEliminated = gGlobalSyncTable.round
 
-        if placement then
+        local gData = GAME_MODE_DATA[gGlobalSyncTable.gameMode]
+        if gData and gData.doPlacementPoints then
             local highestPlacement = 0
             for_each_connected_player(function(i)
                 if i == m.playerIndex then return end

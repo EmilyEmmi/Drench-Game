@@ -13,7 +13,6 @@ local scoreMenuFinal = false
 local standingsBarCurrY = {}
 local lastCountdownNumber = 0
 local countdownTimer = 0
-local duelSideTimer = 30
 local hudHint = -1
 local hud_hints = {
     "Wah-hah! Wario thinks you should punch your opponents to get them out! Show no mercy!",
@@ -26,15 +25,15 @@ local hud_hints = {
     "This mod was a collaboration with many people, too many to list in these tips! But most of the programming was done by EmilyEmmi, who is very cool. These tips are not biased, of course.",
     "Wah, they say that not riding the carousel in Mingle is \"cheating\", eh? I'll throw my opponents off and get them in trouble! How's that for cheating, huh?",
     "Star Steal is one of my-a personal favorites! You move slower while holding the Super Star, so you'll need to-a dodge, ha-ha!",
-    "It's Toad! I dread playing Bomb Tag... I always get hit at the last second! My advice is to KEEP RUNNING! Screaming also helps! AAAAA!",
+    "It's Toad! I dread playing Bomb Tag... I always get hit at the last second! The players holding Bob-Ombs run faster, so my advice is to try and flank them! Screaming also helps! AAAAA!",
     "Hello, I'm Luigi and I find the minigame \"King Of The Hill\" to be an enjoyable experience. I myself am against fighting though, so I just wait until the coast is clear.",
     "I'ma Wario! Want to crush your enemies in Duel or Lights Out? Use the Ground Pound! It deals BIG damage if you can time it right! Give me a cut of the money though, since I invented it!",
     "Every music track except the one for Mingle was created by murioz! Without her contributions, you'd be listening to Bob-Omb Battlefield over and over...",
-    "The lobby, Mingle, Glass Bridge, and Red Light, green Light maps were created by biobak, who is also working on the upcoming rom hack \"Return To Yoshi's Island\"!",
+    "The lobby, Mingle, Glass Bridge, and Red Light, Green Light maps were created by biobak, who is also working on the upcoming rom hack \"Return To Yoshi's Island\"!",
     "The King Of The Hill, Toad Town, and Koopa Keep maps were created by Woissil on short notice. Whomp's Fortress was used as a debug map, and you could fall off and lose instantly... it was not fun.",
     "The Duels map was created by me, EmilyEmmi. That's why it's so barebones compared to the others...",
     "I'M TOAD AND I HATE LIGHTS OUT! I try to climb the chains to get away, but they're too slippery and I fall and get hurt! OUCH!",
-    "Wah, I was looking into Bomb Tag, and I found out that IT'S RIGGED! They always give the Bob-Ombs to the players that hold them the least! They must hate winners like me!",
+    "Wah, I was looking into Bomb Tag, and I found out that IT'S RIGGED! They always give the Bob-Ombs to the players that have held them for the least amount of time! They must hate winners like me!",
     "Hello, player. Have you noticed that some doors will refuse to open in Mingle? Apparently, less doors are available after the 3rd round. I hope you find this advice useful.",
     "You have to look out for-a more than just players in Star Steal! If you fall into lava, you'll also lose the Star-a! Be careful!",
     "I'ma Wario, and I'ma gonna win Duels with my exclusive info! You can get a full heal if you take out another player. It's the perfect strategy, since I'm the best brawler around!",
@@ -131,13 +130,6 @@ function on_hud_render()
             table.insert(sideBarLines, "\\#ff5050\\Elimination Mode")
         end
         
-        if gGlobalSyncTable.gameMode == GAME_MODE_DICE then
-            local dieMax = 20
-            local chance = math.min(gPlayerSyncTable[0].roundScore+1,dieMax)
-            local percent = math.round(chance/dieMax*100)
-            add_line_to_table(sideBarLines, string.format("\\#ff5050\\Chance to kill: (%d%%)",percent), lengthLimit)
-        end
-        
         if gData.roundTime and gGlobalSyncTable.eliminateThisRound ~= 0 then
             if gGlobalSyncTable.eliminateThisRound == 1 then
                 add_line_to_table(sideBarLines, "\\#ff5050\\Last place eliminated", lengthLimit)
@@ -145,30 +137,36 @@ function on_hud_render()
                 add_line_to_table(sideBarLines,
                     "\\#ff5050\\Bottom " .. tostring(gGlobalSyncTable.eliminateThisRound) .. " eliminated", lengthLimit)
             end
+
             -- display our score and safe score
             local sMario0 = gPlayerSyncTable[0]
-            if not sMario0.eliminated then
-                local scale = 0.25
-                local safeScore = get_safe_score(get_standings_table("roundScore"))
-                local color = "\\#50ff50\\"
-                if safeScore > sMario0.roundScore then
-                    color = "\\#ff5050\\"
-                end
-                local text = string.format("Your score: " .. color .. "%.01f", sMario0.roundScore/10)
-                local text2 = string.format("Safe score: %.01f", safeScore/10)
-                local width = djui_hud_measure_text(remove_color(text)) * scale
-                local width2 = djui_hud_measure_text(remove_color(text2)) * scale
-                local maxWidth = math.max(width, width2)
-                local x = (screenWidth - maxWidth) / 2
-                local y = 10 * scale
-                djui_hud_set_color(0, 0, 0, 100)
-                djui_hud_render_rect(x - 10 * scale, y - 10 * scale, maxWidth + 20 * scale, 84 * scale)
-                x = (screenWidth - width) / 2
-                djui_hud_print_text_with_color_and_outline(text, x, y, scale)
-                y = y + 32 * scale
-                x = (screenWidth - width2) / 2
-                djui_hud_print_text_with_color_and_outline(text2, x, y, scale)
+            local score = sMario0.roundScore or 0
+            local scoreText = "Your score: "
+            if sMario0.eliminated and (spectatedPlayer > 0 and spectatedPlayer < MAX_PLAYERS) then
+                -- display spectated player's score instead
+                score = gPlayerSyncTable[spectatedPlayer].roundScore or 0
+                scoreText = "Their score: "
             end
+            local scale = 0.25
+            local safeScore = get_safe_score(get_standings_table("roundScore"))
+            local color = "\\#50ff50\\"
+            if safeScore > score then
+                color = "\\#ff5050\\"
+            end
+            local text = string.format(scoreText .. color .. "%.01f", score/10)
+            local text2 = string.format("Safe score: %.01f", safeScore/10)
+            local width = djui_hud_measure_text(remove_color(text)) * scale
+            local width2 = djui_hud_measure_text(remove_color(text2)) * scale
+            local maxWidth = math.max(width, width2)
+            local x = (screenWidth - maxWidth) / 2
+            local y = 10 * scale
+            djui_hud_set_color(0, 0, 0, 100)
+            djui_hud_render_rect(x - 10 * scale, y - 10 * scale, maxWidth + 20 * scale, 84 * scale)
+            x = (screenWidth - width) / 2
+            djui_hud_print_text_with_color_and_outline(text, x, y, scale)
+            y = y + 32 * scale
+            x = (screenWidth - width2) / 2
+            djui_hud_print_text_with_color_and_outline(text2, x, y, scale)
         end
         table.insert(sideBarLines, "")
 
@@ -191,76 +189,22 @@ function on_hud_render()
             gameTimeLeft = 99999 -- FOREVER
         end
 
-        if gGlobalSyncTable.gameMode == GAME_MODE_DUEL then
-            if gGlobalSyncTable.duelState == DUEL_STATE_WAIT then
-                duelSideTimer = 30
-                sideBarLines = {} -- no side bar
-
-                -- center countdown
-                local number = (90 - gGlobalSyncTable.roundTimer) // 30 + 1
-                if number <= 3 and number >= 1 then
-                    if lastCountdownNumber ~= number then
-                        lastCountdownNumber = number
-                        countdownTimer = 0
-                        play_sound(SOUND_GENERAL2_SWITCH_TICK_FAST, gGlobalSoundSource)
-                    end
-                    djui_hud_set_font(FONT_MENU)
-                    local alpha = 0
-                    if countdownTimer < 30 then
-                        alpha = -(255 * math.abs(countdownTimer - 15) // 15) + 255
-                    end
-                    local scale = 1
-                    local width = djui_hud_measure_text(tostring(number)) * scale
-                    local x = (screenWidth - width) / 2
-                    local y = screenHeight / 2 - 32 * scale
-                    djui_hud_set_color(255, 255, 255, alpha)
-                    djui_hud_print_text(tostring(number), x, y, scale)
-                    djui_hud_set_font(FONT_SPECIAL)
-                    countdownTimer = countdownTimer + 1
-                else
-                    lastCountdownNumber = 0
-                end
-            elseif gGlobalSyncTable.duelState == DUEL_STATE_ACTIVE then
-                duelSideTimer = 30
-                if roundTime ~= 0 then
-                    add_line_to_table(sideBarLines, get_time_string(roundTimeLeft) .. " until round ends", lengthLimit)
-                    if roundTimeLeft <= 300 then
-                        local num = math.ceil(roundTimeLeft / 30)
-                        if lastCountdownNumber ~= num then
-                            lastCountdownNumber = num
-                            play_sound(SOUND_GENERAL2_SWITCH_TICK_FAST, gGlobalSoundSource)
-                        end
-                    else
-                        lastCountdownNumber = 0
-                    end
-                else
-                    add_line_to_table(sideBarLines, "\\#ff5050\\Sudden Death!", lengthLimit)
-                end
-            elseif gGlobalSyncTable.duelState == DUEL_STATE_END then
-                sideBarLines = {} -- no side bar
-                lastCountdownNumber = 0
-                duel_hud()
-            end
-        elseif gGlobalSyncTable.gameMode == GAME_MODE_MINGLE then
-            -- displays player count on sidebar too
-            if gGlobalSyncTable.mingleHurry and roundTime ~= 0 and roundTimeLeft <= 10 * 30 and gameTimeLeft >= roundTimeLeft then
-                local text = tostring(gGlobalSyncTable.minglePlayerCount) .. " player"
-                if gGlobalSyncTable.minglePlayerCount ~= 1 then
-                    text = text .. "s"
-                end
-                add_line_to_table(sideBarLines, text, lengthLimit)
+        ---@type boolean?,boolean?
+        local sideBarOverride, sideBarDisable = false, false
+        if gData.hudRenderFunc then
+            sideBarOverride, sideBarDisable = gData.hudRenderFunc(screenWidth, screenHeight, sideBarLines,
+            lengthLimit, roundTime, roundTimeLeft, gameTimeLeft, maxTime)
+        end
+        if sideBarDisable then
+            sideBarLines = {} -- no side bar
+        elseif not sideBarOverride then
+            if roundTime ~= 0 and gameTimeLeft >= roundTimeLeft then
                 add_line_to_table(sideBarLines, get_time_string(roundTimeLeft) .. " until elimination", lengthLimit)
             elseif maxTime ~= -1 then
                 add_line_to_table(sideBarLines, get_time_string(gameTimeLeft) .. " until game ends", lengthLimit)
             else
                 sideBarLines = {} -- no side bar
             end
-        elseif roundTime ~= 0 and gameTimeLeft >= roundTimeLeft then
-            add_line_to_table(sideBarLines, get_time_string(roundTimeLeft) .. " until elimination", lengthLimit)
-        elseif maxTime ~= -1 then
-            add_line_to_table(sideBarLines, get_time_string(gameTimeLeft) .. " until game ends", lengthLimit)
-        else
-            sideBarLines = {} -- no side bar
         end
 
         if gMarioStates[0].action == ACT_SPECTATE then
@@ -604,97 +548,6 @@ function behind_hud_render()
 end
 
 hook_event(HOOK_ON_HUD_RENDER_BEHIND, behind_hud_render)
-
--- hud for between duel state, ported from the original Duels mod (with modifications to support more players)
-function duel_hud()
-    local screenWidth, screenHeight = djui_hud_get_screen_width(), djui_hud_get_screen_height()
-    width = screenWidth * 0.4
-    height = screenHeight * 0.2
-    local dist = duelSideTimer * duelSideTimer * (width / 900)
-    local scale = 0.5
-    local toWin = 2
-
-    local comps = {}
-    local teamCounted = {}
-    for_each_connected_player(function(index)
-        local sMario = gPlayerSyncTable[index]
-        if sMario.validForDuel then
-            if sMario.team == nil or sMario.team == 0 or sMario.team > #TEAM_DATA then
-                local playerColor = network_get_player_text_color_string(index)
-                local name = playerColor .. gNetworkPlayers[index].name
-                local r, g, b = convert_color(playerColor)
-                table.insert(comps, {name, (sMario.roundScore or 0), {r = r, g = g, b = b}})
-            elseif not teamCounted[sMario.team] then
-                teamCounted[sMario.team] = #comps + 1 -- index for our team data
-                local name = TEAM_DATA[sMario.team][3]
-                local color = TEAM_DATA[sMario.team][1]
-                table.insert(comps, {name, (sMario.roundScore or 0), color})
-            elseif sMario.roundScore > comps[teamCounted[sMario.team]][2] then
-                comps[teamCounted[sMario.team]][2] = sMario.roundScore
-            end
-        end
-    end)
-    if do_solo_debug() then
-        for i=1,MAX_PLAYERS-1 do
-            table.insert(comps, {tostring(i), math.random(0, toWin-1), {r = 255, g = 255, b = 255}})
-        end
-    end
-
-    while ((#comps+1) // 2) * (height + 20 * scale) >= screenHeight do
-        scale = scale / 2
-        height = height / 2
-    end
-    for i, compData in ipairs(comps) do
-        local name = compData[1]
-        local score = compData[2]
-        local r, g, b = compData[3].r, compData[3].g, compData[3].b
-        r = math.max(r - 50, 0)
-        g = math.max(g - 50, 0)
-        b = math.max(b - 50, 0)
-
-        local x = -dist
-        if i % 2 == 0 then
-            x = screenWidth - width + dist
-        end
-        local y = (screenHeight - height) / 2
-        local panelsOnThisSide = (#comps + (i % 2)) // 2
-        if panelsOnThisSide > 1 then
-            local panelNum = ((i + 1) // 2)
-            y = y + (height + 20 * scale) * (-0.5 * (panelsOnThisSide + 1) + panelNum)
-        end
-        djui_hud_set_color(r, g, b, 180)
-        djui_hud_render_rect(x, y, width, height)
-        if i % 2 == 1 then
-            x = x + 10
-        else
-            x = x + width - (djui_hud_measure_text(remove_color(name)) * scale) - 10
-        end
-        djui_hud_print_text_with_color_and_outline(name, x, y + 2, scale, 255, 2)
-        y = y + 35 * scale
-        if i % 2 == 0 then
-            x = screenWidth - 36 * scale + dist - 10
-        end
-        for a = 1, toWin do
-            if score >= a then
-                djui_hud_set_color(255, 255, 255, 255)
-            else
-                djui_hud_set_color(0, 0, 0, 180)
-            end
-            djui_hud_render_texture(gTextures.star, x, y, scale * 2, scale * 2)
-
-            if i % 2 == 1 then
-                x = x + 35 * scale
-            else
-                x = x - 35 * scale
-            end
-        end
-        y = y - 35 * scale
-    end
-
-    if duelSideTimer > 0 then
-        duelSideTimer = duelSideTimer - 1
-    end
-end
 
 -- the menu from geoguessr, which is from shine thief... wow
 local teamNameRef = {"Random"}

@@ -1,7 +1,7 @@
 v1.2 (WIP)
 - NEW GAMES!
     - Dice Block Battle: Takes place on the same maps as Star Steal and Bomb Tag. You have a 5% chance to kill, but your odds increase for every failed kill and every time you survive a roll. Be the last one standing to win!
-        - TODO: Points based on placement(?), some sort of dice visual?
+        - TODO: Points based on placement (TO TEST), some sort of dice visual?
 - New Features:
     - Added indicators for which players moved on the leaderboard (like in Mario Kart)
     - Added a Music toggle, usable by all players (The setting "Mingle Only" only plays the Mingle track)
@@ -33,9 +33,10 @@ v1.2 (WIP)
     - King Of The Hill:
         - Points are now counted in tenths of a second instead of whole seconds.
     - Bomb Tag:
+        - Players holding a bomb now move 10% faster.
         - Instead of between 1-2 bombs being assigned at random, bombs are assigned based on player count.
         - Bombs are now assigned to whichever players have the least amount of time with the bomb.
-        - Respawning while not holding a bomb now puts you in the hard knockback action.
+        - Respawning while not holding a bomb now puts you in a hard knockback action in which you can be hit.
     - Mingle:
         - Numbers can be called sooner after round 1.
         - When there is only 1:30 left, numbers will be called more quickly.
@@ -48,6 +49,7 @@ v1.2 (WIP)
 - Visual Changes:
     - The sidebar now displays "Elimination Mode" when... playing in Elimination Mode.
     - When playing with uneven teams, points are adjusted AFTER the "[Player] wins!" message to make the message reflect the actual winner(s).
+    - When spectating a player, the top of the screen will now display their score and the safe score in KOTH and Star Steal.
     - Red Light, Green Light:
         - Added a visual indicator for Toad's eyesight.
     - Mingle:
@@ -74,6 +76,8 @@ v1.2 (WIP)
     - Fixed Random game selection sometimes skipping certain modes
     - Glass Bridge:
         - Fixed a bug where spectating a falling player after reaching the end could cause you to lose as well
+    - Mingle:
+        - Fixed being able to ledge grab the doors to avoid dying during the carousel phase.
 - Backend Changes
     - The sound folder was reduced by over 20 MB!!!
         - This was done by compressing/trimming the gigantic audio files (THANK YOU SQUISHY!!!)
@@ -86,7 +90,11 @@ v1.2 (WIP)
         - No points earned when playing All Duel on bizzare's stream (prob also desync)
         - Test Elimination Mode a bit more, especially with dice block battle
         - PRIORITY: Players are reviving in certain games now? Seen on RLGL and Lights Out (maybe fixed?)
-        - Add "their score" and "safe score" when spectating
+        - Toad town has a wall that's hard to see near the 1up house
+    - API? (probably not to add more games tho)
+    - Mingle:
+        - Can cheat by ledge-grabbing the doors
+        - Are the amount of doors calculated correctly?
     - Bomb Tag:
         - Is bomb assignment borked?
     - King Of The Hill:

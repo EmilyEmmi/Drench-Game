@@ -173,6 +173,12 @@ function mingle_door_loop(o)
             shouldBeClosed = true
         end
     end
+    
+    -- prevent ledge grabbing
+    local m0 = gMarioStates[0]
+    if shouldBeClosed and m0.action == ACT_LEDGE_GRAB and m0.floor and m0.floor.object == o then
+        set_mario_action(m0, ACT_SOFT_BONK, 1)
+    end
 
     local targetAngle = o.oMoveAngleYaw
     if not shouldBeClosed then
