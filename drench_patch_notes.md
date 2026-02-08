@@ -1,7 +1,8 @@
 v1.2 (WIP)
 - NEW GAMES!
     - Dice Block Battle: Takes place on the same maps as Star Steal and Bomb Tag. You have a 5% chance to kill, but your odds increase for every failed kill and every time you survive a roll. Be the last one standing to win!
-        - TODO: Points based on placement (TO TEST), some sort of dice visual?
+        - Also contains a new music track by Murioz, who also created many of the other music tracks
+        - TODO: Points based on placement (TO TEST)
 - New Features:
     - Added indicators for which players moved on the leaderboard (like in Mario Kart)
     - Added a Music toggle, usable by all players (The setting "Mingle Only" only plays the Mingle track)
@@ -55,7 +56,7 @@ v1.2 (WIP)
     - Mingle:
         - Adjusted the description to hopefully make the objective more clear.
     - Lights Out:
-        - Spectators can now see the health of players.
+        - Eliminated players can now see the health of the remaining players.
     - Duel:
         - When setting up a Duel game, "Select All Players" was changed to "All Player Duel" and is now highlighted in yellow.
             - In addition, "Confirm Duelers" was changed to green.
@@ -91,10 +92,15 @@ v1.2 (WIP)
         - Test Elimination Mode a bit more, especially with dice block battle
         - PRIORITY: Players are reviving in certain games now? Seen on RLGL and Lights Out (maybe fixed?)
         - Toad town has a wall that's hard to see near the 1up house
+        - Add support for Sonic in Extra Characters
+        - Camera isn't fixed when spectating during the win screen
+        - Knockback is increased when holding the bomb (bad)
+        - Add mercy rule
+        - Fix wonky points in teams all-duel
     - API? (probably not to add more games tho)
     - Mingle:
         - Can cheat by ledge-grabbing the doors
-        - Are the amount of doors calculated correctly?
+        - Are the amount of doors calculated correctly? (No)
     - Bomb Tag:
         - Is bomb assignment borked?
     - King Of The Hill:

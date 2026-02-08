@@ -11,6 +11,9 @@ local musicData = {
     slider = {audio = audio_stream_load("music-slider-madness-1.ogg"), loop = true, loopStart = 3.256, loopEnd = -1},
     slider2 = {audio = audio_stream_load("music-slider-madness-2.ogg"), loop = true},
     slider3 = {audio = audio_stream_load("music-slider-madness-3.ogg"), loop = true},
+    sliderCasino = {audio = audio_stream_load("music-slider-casino-1.ogg"), loop = true, loopStart = 2.433, loopEnd = -1},
+    sliderCasino2 = {audio = audio_stream_load("music-slider-casino-2.ogg"), loop = true, loopStart = 2.118, loopEnd = -1},
+    sliderCasino3 = {audio = audio_stream_load("music-slider-casino-3.ogg"), loop = true, loopStart = 1.868, loopEnd = -1},
     finalOutro = {audio = audio_stream_load("music-final-outro.ogg")},
 }
 

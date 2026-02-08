@@ -786,7 +786,7 @@ GAME_MODE_DATA = {
         end,
     },
     [GAME_MODE_DICE] = {
-        name = "Dice Block Battle (beta!)",
+        name = "Dice Block Battle",
         desc =
         "Ready to test your luck? You have a 5% chance to kill a player when you hit them, but each failed hit will increase your odds by 10%! Also, getting hit will increase your odds by 5%. Be the last one standing to win!",
         descElim =
@@ -795,6 +795,7 @@ GAME_MODE_DATA = {
         interact = PLAYER_INTERACTIONS_PVP, -- so invulnerability frames exist
         kbStrength = 25,
         doPlacementPoints = true,
+        music = "sliderCasino",
         marioUpdateFunc = function(m)       -- full health and lava respawn
             if m.action == ACT_LAVA_BOOST then
                 set_to_spawn_pos(m, true)
@@ -823,17 +824,27 @@ GAME_MODE_DATA = {
             local sAttacker = gPlayerSyncTable[attacker.playerIndex]
             if sVictim.team == 0 or sAttacker.team ~= sVictim.team then
                 local dieMax = 20
-                local chance = math.min(sAttacker.roundScore + 1, dieMax)
+                local chance = dieMax - math.min(sAttacker.roundScore, dieMax-1)
                 local roll = math.random(1, dieMax)
                 local name = network_get_player_text_color_string(attacker.playerIndex)..gNetworkPlayers[attacker.playerIndex].name
-                local text = string.format("\\#ffff50\\Rolled %s's\\#ffff50\\ die (%d/%d): %d", name, chance, dieMax, roll)
-                djui_chat_message_create(text)
-                if roll <= chance then
+                local text = string.format("%s\\#ffff50\\ rolled %d (needed %d+). ", name, roll, chance)
+                spawn_orange_number_at_pos(roll, attacker.pos.x, attacker.pos.y + 25, attacker.pos.z, true)
+                if roll >= chance then
                     eliminate_mario(victim)
+                    text = text .. "RIP..."
+                    djui_chat_message_create(text)
                 else
+                    text = text .. "You survived!"
+                    djui_chat_message_create(text)
                     sVictim.roundScore = sVictim.roundScore + 1
-                    sAttacker.roundScore = sAttacker.roundScore + 2
+                    --sAttacker.roundScore = sAttacker.roundScore + 2 -- Done in dice roll packet
                 end
+
+                network_send_to(attacker.playerIndex, false, {
+                    id = PACKET_DICE_ROLL,
+                    roll = roll,
+                    chance = chance,
+                })
             end
         end,
         nametagFunc = function(index)

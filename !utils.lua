@@ -1002,3 +1002,11 @@ function attempt_raise_score(sMario, value_, capValue_)
         sMario.roundScore = newValue
     end
 end
+
+-- Spawns an orange number at the given position
+function spawn_orange_number_at_pos(num, x, y, z, sync)
+    spawn_object_no_rotate(id_bhvOrangeNumber, E_MODEL_NUMBER, x, y, z, function(o)
+        o.oBehParams2ndByte = num
+        o.oBehParams = (num & 0xFF) << 16;
+    end, sync)
+end

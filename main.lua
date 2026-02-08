@@ -621,7 +621,7 @@ function mario_update(m)
                 gServerSettings.playerKnockbackStrength = gData.kbStrengthOverrideFunc() or gServerSettings.playerKnockbackStrength
             end
 
-            gNametagsSettings.showHealth = gData.showHealth or (gData.showHealthSpec and sMario.spectator) or false
+            gNametagsSettings.showHealth = gData.showHealth or (gData.showHealthSpec and m.action == ACT_SPECTATE) or false
             if not (sMario.victory or sMario.eliminated) and gData.victoryFunc and gData.victoryFunc(m) then
                 sMario.victory = true
             end
@@ -717,11 +717,11 @@ function update()
         local gData = GAME_MODE_DATA[gGlobalSyncTable.gameMode or 0]
         currentMusic = gData.music or "slider"
 
-        -- dynamic track:
+        -- dynamic track (slider madness and slider casino):
         -- section 1: default
         -- section 2: half are alive
         -- section 3: 2 players left (takes priority over 2)
-        if currentMusic == "slider" then
+        if currentMusic == "slider" or currentMusic == "sliderCasino" then
             local alivePlayers = 0
             local validPlayers = 0
             for_each_connected_player(function(index)
@@ -738,9 +738,9 @@ function update()
             elseif alivePlayers <= 2 then
                 -- this is first in case we're playing with a low amount of players.
                 -- section 2 is skipped in that case.
-                currentMusic = "slider3"
+                currentMusic = currentMusic .. "3"
             elseif percentAlive <= 0.5 then
-                currentMusic = "slider2"
+                currentMusic = currentMusic .. "2"
             end
         end
         
@@ -1293,7 +1293,7 @@ function dice_block_chance_change(tag, oldVal, newVal)
 
     local dieMax = 20
     local chance = math.min(newVal + 1, dieMax)
-    text = string.format("\\#ffff50\\You now have a %d/%d chance of getting a kill!", chance, dieMax)
+    text = string.format("\\#ffff50\\You now have a %d%% chance of getting a kill!", chance*100/dieMax)
     djui_chat_message_create(text)
 end
 hook_on_sync_table_change(gPlayerSyncTable[0], "roundScore", "roundScore", dice_block_chance_change)
@@ -1692,6 +1692,19 @@ function on_packet_desync_fix(data, self)
     end
 end
 
+function on_packet_dice_roll(data, self)
+    local text = string.format("\\#ffff50\\You rolled %d (needed %d+). ", data.roll, data.chance)
+    if data.roll < data.chance then
+        text = text .. "You got unlucky..."
+        djui_chat_message_create(text)
+        local sMario = gPlayerSyncTable[0]
+        sMario.roundScore = sMario.roundScore + 2
+    else
+        text = text .. "You got \'em!"
+        djui_chat_message_create(text)
+    end
+end
+
 PACKET_STAR_STEAL = 0
 PACKET_MINGLE_CALLOUT = 1
 PACKET_MINGLE_RESTART = 2
@@ -1703,6 +1716,7 @@ PACKET_DAMAGE = 7
 PACKET_KILL = 8
 PACKET_REQUEST_DESYNC_FIX = 9
 PACKET_DESYNC_FIX = 10
+PACKET_DICE_ROLL = 11
 sPacketTable = {
     [PACKET_STAR_STEAL] = on_packet_star_steal,
     [PACKET_MINGLE_CALLOUT] = on_packet_mingle_callout,
@@ -1715,6 +1729,7 @@ sPacketTable = {
     [PACKET_KILL] = on_packet_kill,
     [PACKET_REQUEST_DESYNC_FIX] = on_packet_request_desync_fix,
     [PACKET_DESYNC_FIX] = on_packet_desync_fix,
+    [PACKET_DICE_ROLL] = on_packet_dice_roll,
 }
 
 function on_packet_receive(data)
