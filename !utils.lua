@@ -1010,3 +1010,31 @@ function spawn_orange_number_at_pos(num, x, y, z, sync)
         o.oBehParams = (num & 0xFF) << 16;
     end, sync)
 end
+
+-- For sonic in extra characters: Sets rings to 10
+-- It's a bit silly, but despite taking the index, it will only run
+-- if it is set to zero to prevent syncing bugs.
+function sonic_set_full_rings(index)
+    if (not extraCharsSonic) or index ~= 0 then return end
+    extraCharsSonic.set_rings(index, 10)
+end
+
+-- For sonic in extra characters: Lose one ring. If we don't have any rings to lose, KILL.
+function sonic_lose_one_ring(index_)
+    if not extraCharsSonic then return end
+
+    local index = index_ or 0
+    local rings = extraCharsSonic.get_rings(index)
+    local usingRingHealth = extraCharsSonic.using_ring_health(index)
+
+    if rings > 0 then
+        extraCharsSonic.set_rings(index, rings - 1)
+    elseif usingRingHealth then
+        extraCharsSonic.sonic_set_dead(gMarioStates[index])
+        return
+    end
+
+    if not usingRingHealth then return end
+
+    extraCharsSonic.drop_ring(index)
+end

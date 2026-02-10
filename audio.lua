@@ -82,8 +82,13 @@ function update_music(music)
     
     local thisMusic = musicData[music]
     local newTargetVolume = targetVolume
-    if disableMusic == 1 or (disableMusic ~= 0 and music ~= "mingle") then
+    if charSelectExists and charSelect.is_menu_open() and charSelect.get_options_status(4) ~= 0 then
+        -- disable music when in character select menu
+        musicVolume = 0
+        newTargetVolume = 0
+    elseif disableMusic == 1 or (disableMusic ~= 0 and music ~= "mingle") then
         -- disable music based on settings
+        musicVolume = 0
         newTargetVolume = 0
     elseif is_game_paused() or inMenu then
         -- lower volume when paused

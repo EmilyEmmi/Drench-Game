@@ -1,4 +1,5 @@
 local duelSideTimer = 30
+local sonicMingleRingTimer = 0
 
 GAME_MODE_DATA = {
     [GAME_MODE_GLASS] = {
@@ -108,6 +109,7 @@ GAME_MODE_DATA = {
         music = "",            -- no music
         interact = PLAYER_INTERACTIONS_SOLID,
         kbStrength = 10,
+        nerfSonic = true,
         victoryFunc = function(m)
             return (m.floor and m.floor.type == SURFACE_TIMER_END)
         end,
@@ -131,8 +133,18 @@ GAME_MODE_DATA = {
                     djui_chat_message_create("\\#ff5050\\Stay on the carousel!")
                 end
                 m.health = m.health - 8
+
+                -- Extra chars sonic support
+                if m.playerIndex == 0 then
+                    sonicMingleRingTimer = sonicMingleRingTimer + 1
+                    if sonicMingleRingTimer >= 15 then
+                        sonic_lose_one_ring(0)
+                        sonicMingleRingTimer = 0
+                    end
+                end
             elseif m.playerIndex == 0 then
                 mingleWasOnCarousel = true
+                sonicMingleRingTimer = 0
             end
         end,
         eliminateFunc = function() -- eliminate players not in a room with the right amount of people
@@ -273,10 +285,12 @@ GAME_MODE_DATA = {
         autoElimination = true,
         doEliminationPoints = true,
         mercyRuleScale = 10,          -- Max points we can gain in 1 second, used to calculate mercy rule
+        nerfSonic = true,
         marioUpdateFunc = function(m) -- earn points when holding star, and give to nearest opponent on hit
             local sMario = gPlayerSyncTable[m.playerIndex]
             local gIndex = network_global_index_from_local(m.playerIndex)
             m.health = 0x880
+            sonic_set_full_rings(m.playerIndex)
             if gIndex == gGlobalSyncTable.starStealOwner then
                 -- speed cap
                 if m.forwardVel > 40 then
@@ -349,9 +363,11 @@ GAME_MODE_DATA = {
         kbStrength = 10,
         roundTime = 30 * 30,                           -- 30 seconds
         maxRounds = 6,
+        nerfSonic = true,
         marioUpdateFunc = function(m)
             local sMario = gPlayerSyncTable[m.playerIndex]
             m.health = 0x880
+            sonic_set_full_rings(m.playerIndex)
             if m.action == ACT_LAVA_BOOST then
                 set_to_spawn_pos(m, true)
                 if not sMario.holdingBomb then
@@ -465,6 +481,7 @@ GAME_MODE_DATA = {
         mercyRuleScale = 10,          -- Max points we can gain in 1 second, used to calculate mercy rule
         marioUpdateFunc = function(m) -- full health, and that's it
             m.health = 0x880
+            sonic_set_full_rings(m.playerIndex)
         end,
     },
     [GAME_MODE_DUEL] = {
@@ -640,6 +657,7 @@ GAME_MODE_DATA = {
                 if valid then
                     sMario0.eliminated = false
                     m0.health = 0x880
+                    sonic_set_full_rings(0)
                     if m0.action == ACT_SPECTATE then m0.action = ACT_FREEFALL end
                     set_to_spawn_pos(m0, (duelLastState ~= DUEL_STATE_WAIT))
                     if gGlobalSyncTable.roundTimer > 90 then
@@ -801,6 +819,7 @@ GAME_MODE_DATA = {
         kbStrength = 25,
         doPlacementPoints = true,
         music = "sliderCasino",
+        nerfSonic = true,
         marioUpdateFunc = function(m) -- full health and lava respawn
             if m.action == ACT_LAVA_BOOST then
                 set_to_spawn_pos(m, true)
@@ -834,7 +853,7 @@ GAME_MODE_DATA = {
                 local name = network_get_player_text_color_string(attacker.playerIndex) ..
                     gNetworkPlayers[attacker.playerIndex].name
                 local text = string.format("%s\\#ffff50\\ rolled %d (needed %d+). ", name, roll, chance)
-                spawn_orange_number_at_pos(roll, attacker.pos.x, attacker.pos.y + 25, attacker.pos.z, true)
+                spawn_orange_number_at_pos(roll, victim.pos.x, victim.pos.y + 25, victim.pos.z, true)
                 if roll >= chance then
                     eliminate_mario(victim)
                     text = text .. "RIP..."

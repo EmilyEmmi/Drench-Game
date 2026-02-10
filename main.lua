@@ -831,6 +831,15 @@ function update()
 
     if not network_is_server() then return end
 
+    -- give slow down boots for certain games
+    if extraCharsSonic then
+        local nerfSonic = false
+        if gGlobalSyncTable.gameState ~= GAME_STATE_LOBBY and gGlobalSyncTable.gameState ~= GAME_STATE_GAME_END then
+            nerfSonic = gData.nerfSonic or false
+        end
+        extraCharsSonic.sonic_force_slow_down_boots(nerfSonic)
+    end
+
     if gGlobalSyncTable.gameState == GAME_STATE_LOBBY then
         rejoin_data = {}
         local totalReady = 0
@@ -1267,7 +1276,7 @@ function before_phys_step(m, stepType)
     if gGlobalSyncTable.gameState ~= GAME_STATE_ACTIVE then return end
 
     if gGlobalSyncTable.gameMode == GAME_MODE_BOMB_TAG and gPlayerSyncTable[m.playerIndex].holdingBomb
-    and m.action & ACT_FLAG_INVULNERABLE == 0 then -- don't affect knockback actions
+    and m.action & (ACT_FLAG_INVULNERABLE | ACT_FLAG_CUSTOM_ACTION) == 0 then -- don't affect custom or knockback actions
         m.vel.x = m.vel.x * 1.1
         m.vel.z = m.vel.z * 1.1
     end
@@ -1581,6 +1590,7 @@ function on_packet_mingle_restart(data, self)
     update_music("") -- restarts the track
     local m = gMarioStates[0]
     m.health = 0x880
+    sonic_set_full_rings(0)
     set_to_spawn_pos(m, true)
 end
 

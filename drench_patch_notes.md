@@ -10,7 +10,7 @@ v1.2 (WIP)
 - Gameplay Changes:
     - All minigames have been shortened. In a full lobby, most games will last 3 minutes at most, with these exceptions:
         - Red Light, Green Light: Max time is now 2 minutes instead of 3 minutes.
-        - Star Steal: The first round is 1:30, so the minigame will last 3:30 at most.
+        - Star Steal: The first round is 1:30, so the minigame will last 3:30 at most with 5 rounds.
         - Duel: A tiebreaker round occurs after 5 rounds. Therefore, an all-player duel will last ~7 minutes at most rather than going on indefinitely.
     - Elimination logic for round-based games (Bomb Tag, Star Steal, and King Of The Hill) has been changed to make sure they last for exactly the amount of rounds chosen
     - "Disable CS Movesets" was removed, as Character Select has the option on its own now
@@ -21,6 +21,7 @@ v1.2 (WIP)
         - FOR HEADLESS SERVERS: If you'd like to adjust game settings, update your mod storage (easiest way is to manually load Drench Game, change the settings as the host, and then transfer that storage to your server). If that doesn't work, you can edit main.lua directly, but be careful!
     - Changed elimination calculation for round-based games in Elimination Mode so minigames won't always end after one round.
     - In Team Mode, when a player disconnects, their points are distributed across their remaining teammates so that their team won't lose points overall.
+    - Support has been added for Sonic in Extra Characters Plus. Note that he'll have to use the Slow Down boots in some games.
     - Glass Bridge:
         - Players will be eliminated after not making progress every 20 seconds instead of every 30 seconds (for the first round, it's 10 seconds).
         - Reduced knockback by half

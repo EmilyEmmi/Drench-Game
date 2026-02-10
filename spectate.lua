@@ -7,6 +7,7 @@ local lastDirTime = 0
 function act_spectate(m)
     m.marioObj.header.gfx.node.flags = m.marioObj.header.gfx.node.flags | GRAPH_RENDER_INVISIBLE;
     m.health = 0x880
+    sonic_set_full_rings(m.playerIndex)
     if m.actionTimer < 15 then
         m.actionTimer = m.actionTimer + 1
     end
