@@ -105,7 +105,7 @@ GAME_MODE_DATA = {
         "Reach the finish line! When Toad shouts \"Red Light!\", don't let him see you moving! You can move behind obstacles to avoid being seen. Tread carefully!",
         maxTime = 2 * 60 * 30, -- 2 minutes
         level = LEVEL_RGLIGHT,
-        music = "", -- no music
+        music = "",            -- no music
         interact = PLAYER_INTERACTIONS_SOLID,
         kbStrength = 10,
         victoryFunc = function(m)
@@ -177,7 +177,7 @@ GAME_MODE_DATA = {
                 local maxTime = gData.maxTime or 3 * 30 * 60 -- default 3 minutes max
                 if gData.maxRounds and gData.roundTime and gData.roundTime > 0 then
                     maxTime = gData.firstRoundTime or gData.roundTime
-                    maxTime = maxTime + gData.roundTime * (gData.maxRounds-1)
+                    maxTime = maxTime + gData.roundTime * (gData.maxRounds - 1)
                 end
                 -- there isn't 90 seconds left, change max time to half of the remaining time
                 if high * 60 > maxTime - gGlobalSyncTable.gameTimer then
@@ -243,7 +243,8 @@ GAME_MODE_DATA = {
         kbStrengthOverrideFunc = function()
             return gGlobalSyncTable.mignleHurry
         end,
-        hudRenderFunc = function(screenWidth, screenHeight, sideBarLines, lengthLimit, roundTime, roundTimeLeft, gameTimeLeft, maxTime)
+        hudRenderFunc = function(screenWidth, screenHeight, sideBarLines, lengthLimit, roundTime, roundTimeLeft,
+                                 gameTimeLeft, maxTime)
             -- displays player count on sidebar too
             if gGlobalSyncTable.mingleHurry and roundTime ~= 0 and roundTimeLeft <= 10 * 30 and gameTimeLeft >= roundTimeLeft then
                 local text = tostring(gGlobalSyncTable.minglePlayerCount) .. " player"
@@ -264,14 +265,15 @@ GAME_MODE_DATA = {
         name = "Star Steal",
         desc =
         "Get the Star, and hold it to increase your score! Hit a player to take the Star from them! You'll be eliminated if your score is too low. Hmmm, this seems familiar...",
-        level = -1, -- selects toad town or koopa keep
-        interact = PLAYER_INTERACTIONS_PVP, -- so invulnerability frames exist
-        firstRoundTime = 1 * 60 * 30,       -- 1 minutes
-        roundTime = 30 * 30,                -- 30 seconds
+        level = { LEVEL_TOAD_TOWN, LEVEL_KOOPA_KEEP }, -- selects toad town or koopa keep
+        interact = PLAYER_INTERACTIONS_PVP,            -- so invulnerability frames exist
+        firstRoundTime = 90 * 30,                      -- 1 minute and 30 seconds
+        roundTime = 30 * 30,                           -- 30 seconds
         maxRounds = 5,
         autoElimination = true,
         doEliminationPoints = true,
-        marioUpdateFunc = function(m)       -- earn points when holding star, and give to nearest opponent on hit
+        mercyRuleScale = 10,          -- Max points we can gain in 1 second, used to calculate mercy rule
+        marioUpdateFunc = function(m) -- earn points when holding star, and give to nearest opponent on hit
             local sMario = gPlayerSyncTable[m.playerIndex]
             local gIndex = network_global_index_from_local(m.playerIndex)
             m.health = 0x880
@@ -342,10 +344,10 @@ GAME_MODE_DATA = {
         name = "Bomb Tag",
         desc =
         "Don't hold a Bob-Omb! Tag another player to pass your Bob-Omb to them. If you're holding a Bob-Omb when time runs out... you can probably guess what happens.",
-        level = -1, -- selects toad town or koopa keep
-        interact = PLAYER_INTERACTIONS_PVP, -- so invulnerability frames exist
+        level = { LEVEL_TOAD_TOWN, LEVEL_KOOPA_KEEP }, -- selects toad town or koopa keep
+        interact = PLAYER_INTERACTIONS_PVP,            -- so invulnerability frames exist
         kbStrength = 10,
-        roundTime = 30 * 30, -- 30 seconds
+        roundTime = 30 * 30,                           -- 30 seconds
         maxRounds = 6,
         marioUpdateFunc = function(m)
             local sMario = gPlayerSyncTable[m.playerIndex]
@@ -460,7 +462,8 @@ GAME_MODE_DATA = {
         maxRounds = 5,
         autoElimination = true,
         doEliminationPoints = true,
-        marioUpdateFunc = function(m)       -- full health, and that's it
+        mercyRuleScale = 10,          -- Max points we can gain in 1 second, used to calculate mercy rule
+        marioUpdateFunc = function(m) -- full health, and that's it
             m.health = 0x880
         end,
     },
@@ -470,8 +473,10 @@ GAME_MODE_DATA = {
         "Defeat your opponent(s)! Have the most health or be the last one standing to earn a point. Get 2 points to win the minigame! It's time to LOCK IN.",
         descElim =
         "Defeat your opponent(s)! Have the most health or be the last one standing to earn a point. Get 2 points to win it ALL. It's time to LOCK IN.",
-        descTeams = "It's team versus team! Have the most health or be the last one standing to earn your team a point. Get 2 points to win the minigame! It's time to LOCK IN.",
-        descTeamsElim = "It's team versus team! Have the most health or be the last one standing to earn your team a point. Get 2 points to win it ALL. It's time to LOCK IN.",
+        descTeams =
+        "It's team versus team! Have the most health or be the last one standing to earn your team a point. Get 2 points to win the minigame! It's time to LOCK IN.",
+        descTeamsElim =
+        "It's team versus team! Have the most health or be the last one standing to earn your team a point. Get 2 points to win it ALL. It's time to LOCK IN.",
         level = LEVEL_DUEL,
         interact = PLAYER_INTERACTIONS_PVP,
         maxTime = -1,        -- NO max time
@@ -536,7 +541,7 @@ GAME_MODE_DATA = {
                             else
                                 aliveTeams = aliveTeams + 1
                             end
-                            
+
                             if alivePlayers >= 2 and gGlobalSyncTable.teamCount == 0 then return true end
                         end
                     end
@@ -690,7 +695,7 @@ GAME_MODE_DATA = {
                 set_mario_particle_flags(m, PARTICLE_SPARKLES, 0)
             end
             if m.playerIndex ~= 0 then return end
-            
+
             if not sMario.validForDuel then
                 sMario.eliminated = true
                 localWasEliminated = true
@@ -791,12 +796,12 @@ GAME_MODE_DATA = {
         "Ready to test your luck? You have a 5% chance to kill a player when you hit them, but each failed hit will increase your odds by 10%! Also, getting hit will increase your odds by 5%. Be the last one standing to win!",
         descElim =
         "Ready to test your luck? You have a 5% chance to kill a player when you hit them, but each failed hit will increase your odds by 10%! Also, getting hit will increase your odds by 5%. Who will survive?",
-        level = -1,
-        interact = PLAYER_INTERACTIONS_PVP, -- so invulnerability frames exist
+        level = { LEVEL_TOAD_TOWN, LEVEL_KOOPA_KEEP }, -- selects toad town or koopa keep
+        interact = PLAYER_INTERACTIONS_PVP,            -- so invulnerability frames exist
         kbStrength = 25,
         doPlacementPoints = true,
         music = "sliderCasino",
-        marioUpdateFunc = function(m)       -- full health and lava respawn
+        marioUpdateFunc = function(m) -- full health and lava respawn
             if m.action == ACT_LAVA_BOOST then
                 set_to_spawn_pos(m, true)
             end
@@ -814,7 +819,7 @@ GAME_MODE_DATA = {
                 end
             end)
             if not foundEliminated then return end
-            
+
             local toEliminate, hitMinimum = calculate_players_to_eliminate(false, true)
             if hitMinimum then return true end
         end,
@@ -824,9 +829,10 @@ GAME_MODE_DATA = {
             local sAttacker = gPlayerSyncTable[attacker.playerIndex]
             if sVictim.team == 0 or sAttacker.team ~= sVictim.team then
                 local dieMax = 20
-                local chance = dieMax - math.min(sAttacker.roundScore, dieMax-1)
+                local chance = dieMax - math.min(sAttacker.roundScore, dieMax - 1)
                 local roll = math.random(1, dieMax)
-                local name = network_get_player_text_color_string(attacker.playerIndex)..gNetworkPlayers[attacker.playerIndex].name
+                local name = network_get_player_text_color_string(attacker.playerIndex) ..
+                    gNetworkPlayers[attacker.playerIndex].name
                 local text = string.format("%s\\#ffff50\\ rolled %d (needed %d+). ", name, roll, chance)
                 spawn_orange_number_at_pos(roll, attacker.pos.x, attacker.pos.y + 25, attacker.pos.z, true)
                 if roll >= chance then
@@ -850,16 +856,16 @@ GAME_MODE_DATA = {
         nametagFunc = function(index)
             -- Add chance to kill on the nametag
             local dieMax = 20
-            local chance = math.min(gPlayerSyncTable[index].roundScore+1,dieMax)
-            local percent = math.round(chance/dieMax*100)
+            local chance = math.min(gPlayerSyncTable[index].roundScore + 1, dieMax)
+            local percent = math.round(chance / dieMax * 100)
             local name = remove_color(gNetworkPlayers[index].name)
-            return name .. " ("..percent.."%)"
+            return name .. " (" .. percent .. "%)"
         end,
         hudRenderFunc = function(screenWidth, screenHeight, sideBarLines, lengthLimit)
             local dieMax = 20
-            local chance = math.min(gPlayerSyncTable[0].roundScore+1,dieMax)
-            local percent = math.round(chance/dieMax*100)
-            add_line_to_table(sideBarLines, string.format("\\#ff5050\\Chance to kill: (%d%%)",percent), lengthLimit)
+            local chance = math.min(gPlayerSyncTable[0].roundScore + 1, dieMax)
+            local percent = math.round(chance / dieMax * 100)
+            add_line_to_table(sideBarLines, string.format("\\#ff5050\\Chance to kill: (%d%%)", percent), lengthLimit)
         end,
     },
 }
@@ -923,24 +929,24 @@ function duel_hud()
                 local playerColor = network_get_player_text_color_string(index)
                 local name = playerColor .. gNetworkPlayers[index].name
                 local r, g, b = convert_color(playerColor)
-                table.insert(comps, {name, (sMario.roundScore or 0), {r = r, g = g, b = b}})
+                table.insert(comps, { name, (sMario.roundScore or 0), { r = r, g = g, b = b } })
             elseif not teamCounted[sMario.team] then
                 teamCounted[sMario.team] = #comps + 1 -- index for our team data
                 local name = TEAM_DATA[sMario.team][3]
                 local color = TEAM_DATA[sMario.team][1]
-                table.insert(comps, {name, (sMario.roundScore or 0), color})
+                table.insert(comps, { name, (sMario.roundScore or 0), color })
             elseif sMario.roundScore > comps[teamCounted[sMario.team]][2] then
                 comps[teamCounted[sMario.team]][2] = sMario.roundScore
             end
         end
     end)
     if do_solo_debug() then
-        for i=1,MAX_PLAYERS-1 do
-            table.insert(comps, {tostring(i), math.random(0, toWin-1), {r = 255, g = 255, b = 255}})
+        for i = 1, MAX_PLAYERS - 1 do
+            table.insert(comps, { tostring(i), math.random(0, toWin - 1), { r = 255, g = 255, b = 255 } })
         end
     end
 
-    while ((#comps+1) // 2) * (height + 20 * scale) >= screenHeight do
+    while ((#comps + 1) // 2) * (height + 20 * scale) >= screenHeight do
         scale = scale / 2
         height = height / 2
     end

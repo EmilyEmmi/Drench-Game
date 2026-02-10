@@ -83,7 +83,6 @@ gGlobalSyncTable.allDuel = false
 gGlobalSyncTable.gameLevelOverride = -1
 gGlobalSyncTable.teamCount = 0
 gGlobalSyncTable.teamSelection = TEAM_SELECTION_RANDOM
-gGlobalSyncTable.disableCs = false
 gGlobalSyncTable.includeAllDuel = false
 gGlobalSyncTable.endWith1v1 = false
 
@@ -248,7 +247,8 @@ function before_mario_update(m)
     end
 
     -- Put mario in spectate action
-    if (sMario.eliminated or sMario.spectator or (sMario.victory and gGlobalSyncTable.gameMode ~= GAME_MODE_DUEL)) and m.action ~= ACT_SPECTATE then
+    if (sMario.eliminated or sMario.spectator or (sMario.victory and gGlobalSyncTable.gameMode ~= GAME_MODE_DUEL))
+    and m.action ~= ACT_SPECTATE and m.action ~= ACT_END_SEQUENCE then
         set_mario_action(m, ACT_SPECTATE, 0)
         if m.playerIndex == 0 and m.area.camera then
             m.area.camera.cutscene = 0
@@ -582,7 +582,7 @@ function mario_update(m)
         end
     else
         warpLevel = gData.level or -1
-        if warpLevel == -1 then
+        if type(warpLevel) == "table" then
             warpLevel = gGlobalSyncTable.gameLevel or -1
         end
 
@@ -625,6 +625,33 @@ function mario_update(m)
             if not (sMario.victory or sMario.eliminated) and gData.victoryFunc and gData.victoryFunc(m) then
                 sMario.victory = true
             end
+
+            -- mercy rule for KOTH and Star Steal
+            if gData.mercyRuleScale and not (sMario.eliminated or sMario.spectator) then
+                local roundTime = gData.roundTime or 0
+                if gData.firstRoundTime and gGlobalSyncTable.round == 1 then
+                    roundTime = gData.firstRoundTime
+                end
+
+                -- amount of points we can possibly have in the remaining time
+                local maxPossibleScore = gData.mercyRuleScale * math.ceil((roundTime - gGlobalSyncTable.roundTimer) / 30)
+                maxPossibleScore = sMario.roundScore + maxPossibleScore
+                if roundTime ~= 0 and maxPossibleScore < storedSafeScore then
+                    local alivePlayers = 0
+                    for_each_connected_player(function(index)
+                        local sMario2 = gPlayerSyncTable[index]
+                        if not (sMario2.eliminated) then
+                            alivePlayers = alivePlayers + 1
+                        end
+                        if alivePlayers > 2 then return true end
+                    end)
+
+                    if alivePlayers == 2 then -- exactly two left (if we allowed one, both would be eliminated since the safe score would briefly be 999)
+                        eliminate_mario(m)
+                        djui_chat_message_create("\\#ff5050\\Eliminated by mercy rule-\nyou can't earn enough points to win.")
+                    end
+                end
+            end
         elseif gGlobalSyncTable.gameState == GAME_STATE_SCORES then
             desyncTimer = 0
         end
@@ -648,9 +675,6 @@ function update()
     -- CS support
     if charSelectExists then
         charSelect.restrict_palettes(gGlobalSyncTable.teamMode == 0)
-        if csVersion < 15 then
-            charSelect.restrict_movesets(gGlobalSyncTable.disableCs)
-        end
     end
 
     local np0 = gNetworkPlayers[0]
@@ -844,18 +868,16 @@ function update()
                     gGlobalSyncTable.miniGameNum = 1
                     gGlobalSyncTable.gameWinner = -1
                     gGlobalSyncTable.roundTimer = 0
-                    gGlobalSyncTable.eliminateThisRound = calculate_players_to_eliminate()
-                    -- pick toad town or koopa keep at random
-                    local gData = GAME_MODE_DATA[gGlobalSyncTable.gameMode or 0]
-                    if gData.level == -1 then
+                    gGlobalSyncTable.eliminateThisRound = calculate_players_to_eliminate(true)
+                    
+                    gData = GAME_MODE_DATA[gGlobalSyncTable.gameMode or 0]
+                    if type(gData.level) == "table" then
+                        -- Pick from map list at random
                         if gGlobalSyncTable.gameLevelOverride ~= -1 then
                             gGlobalSyncTable.gameLevel = gGlobalSyncTable.gameLevelOverride
                         else
-                            local newLevel = LEVEL_TOAD_TOWN
-                            if math.random(0, 1) == 1 then
-                                newLevel = LEVEL_KOOPA_KEEP
-                            end
-                            gGlobalSyncTable.gameLevel = newLevel
+                            local newLevel = math.random(1, #gData.level)
+                            gGlobalSyncTable.gameLevel = gData.level[newLevel]
                         end
                     end
                 end
@@ -1199,17 +1221,15 @@ function update()
                         gGlobalSyncTable.round = 1
                         gGlobalSyncTable.eliminateThisRound = calculate_players_to_eliminate(not gGlobalSyncTable.eliminationMode)
                         gGlobalSyncTable.gameState = GAME_STATE_RULES
-                        -- pick toad town or koopa keep at random
-                        local gData = GAME_MODE_DATA[gGlobalSyncTable.gameMode or 0]
-                        if gData.level == -1 then
+
+                        gData = GAME_MODE_DATA[gGlobalSyncTable.gameMode or 0]
+                        if type(gData.level) == "table" then
+                            -- Pick from map list at random
                             if gGlobalSyncTable.gameLevelOverride ~= -1 then
                                 gGlobalSyncTable.gameLevel = gGlobalSyncTable.gameLevelOverride
                             else
-                                local newLevel = LEVEL_TOAD_TOWN
-                                if math.random(0, 1) == 1 then
-                                    newLevel = LEVEL_KOOPA_KEEP
-                                end
-                                gGlobalSyncTable.gameLevel = newLevel
+                                local newLevel = math.random(1, #gData.level)
+                                gGlobalSyncTable.gameLevel = gData.level[newLevel]
                             end
                         end
                     end
@@ -1245,8 +1265,9 @@ hook_event(HOOK_ON_DEATH, on_death)
 -- make bomb tag players move slightly faster
 function before_phys_step(m, stepType)
     if gGlobalSyncTable.gameState ~= GAME_STATE_ACTIVE then return end
-    
-    if gGlobalSyncTable.gameMode == GAME_MODE_BOMB_TAG and gPlayerSyncTable[m.playerIndex].holdingBomb then
+
+    if gGlobalSyncTable.gameMode == GAME_MODE_BOMB_TAG and gPlayerSyncTable[m.playerIndex].holdingBomb
+    and m.action & ACT_FLAG_INVULNERABLE == 0 then -- don't affect knockback actions
         m.vel.x = m.vel.x * 1.1
         m.vel.z = m.vel.z * 1.1
     end
@@ -1400,6 +1421,10 @@ function on_player_disconnected(m)
             validForDuel = sMario.validForDuel or false,
         })
         sMario.rejoinID = "-1"
+        -- give all remote players the rejoin check flag, in case the player rejoined before the disconnect process
+        for i=1,MAX_PLAYERS-1 do
+            rejoin_check[i] = 1
+        end
     end
     if network_is_server() then
         sMario.eliminated = true

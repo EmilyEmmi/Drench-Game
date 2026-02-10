@@ -10,9 +10,10 @@ v1.2 (WIP)
 - Gameplay Changes:
     - All minigames have been shortened. In a full lobby, most games will last 3 minutes at most, with these exceptions:
         - Red Light, Green Light: Max time is now 2 minutes instead of 3 minutes.
+        - Star Steal: The first round is 1:30, so the minigame will last 3:30 at most.
         - Duel: A tiebreaker round occurs after 5 rounds. Therefore, an all-player duel will last ~7 minutes at most rather than going on indefinitely.
     - Elimination logic for round-based games (Bomb Tag, Star Steal, and King Of The Hill) has been changed to make sure they last for exactly the amount of rounds chosen
-    - "Disable CS Movesets" won't appear if using Character Select v1.15 or higher, as CS has the option on its own now
+    - "Disable CS Movesets" was removed, as Character Select has the option on its own now
     - "Random" selection shouldn't pick the same minigame twice in a row anymore, and it will shuffle through all minigames (except Duel) before picking the duplicates
     - Changing minigame selection to "All" mid-game will now automatically set the max minigame amount.
     - The default minigame selection is now set to "Random" with 5 minigames instead of "All".
@@ -28,11 +29,11 @@ v1.2 (WIP)
         - Adjusted points a bit; players who fail to reach the end can only earn 15 points max (still based on distance), and players who reach the end will still receive 20.
         - Toad's eye level was moved down by 200 units, and the position checked for was moved down by 20 units. This means it should be much easier to hide behind objects.
         - Toad kills players 7 frames after fully turning around instead of only 5.
-    - Star Steal:
-        - The first round is now 1 minute instead of 2 minutes.
+    - Star Steal and King Of The Hill:
+        - (Star Steal Only): The first round is now 1 minute and 30 seconds instead of 2 minutes.
         - Points are now counted in tenths of a second instead of whole seconds.
-    - King Of The Hill:
-        - Points are now counted in tenths of a second instead of whole seconds.
+        - You can no longer be more than 20 points ahead. Your score will stop increasing at that point.
+        - If there's two players left and one of the players is too far behind to possibly win (under 20 points, but less than 20 seconds left), the game will end immediately.
     - Bomb Tag:
         - Players holding a bomb now move 10% faster.
         - Instead of between 1-2 bombs being assigned at random, bombs are assigned based on player count.
@@ -65,13 +66,14 @@ v1.2 (WIP)
         - Changed the description to provide more information.
 - Bug Fixes:
     - Removed an exploit to grant your team multiplied points
-    - Fixed players sometimes earning way more points than they should (TO TEST)
+    - Fixed players sometimes earning way more points than they should
     - Fixed players becoming invincible if too many players spectate them (also fixed by Coop itself)
-    - Fixed rejoining often causing elimination even if you rejoin on the same exact round (TO TEST)
+    - Fixed rejoining often causing elimination even if you rejoin on the same exact round
+    - Fixed rejoining not working if you rejoin before you're marked as disconnected
     - Fixed Final Duel with teams picking two people on the same team
     - Fixed the ending only showing one player from the winning team of a Final Duel
     - Fixed new players sometimes being un-eliminated by default, causing the music in certain minigames to briefly change
-    - Fixed player spawn positions sometimes not being synced between players (NOT ACTUALLY FIXED???)
+    - Fixed player spawn positions sometimes not being synced between players (NOT FIXED!!!)
     - More desyncs will be corrected automatically; you can also use the /desync command (host or moderator only) to fix problems
     - Fixed some collision issues on Toad Town and Koopa Keep
     - Fixed Random game selection sometimes skipping certain modes
@@ -89,14 +91,14 @@ v1.2 (WIP)
             - Gamble Gallery: Similar theming to Glass Bridge with dice and card obstacles (also like that old sticker star screenshot)
         - I did random 8 games and it picked KOTH twice? Look into this (FIXED?)
         - No points earned when playing All Duel on bizzare's stream (prob also desync)
-        - Test Elimination Mode a bit more, especially with dice block battle
+        - Test Elimination Mode a bit more, especially with dice block battle (SEEMS GOOD)
         - PRIORITY: Players are reviving in certain games now? Seen on RLGL and Lights Out (maybe fixed?)
         - Toad town has a wall that's hard to see near the 1up house
         - Add support for Sonic in Extra Characters
-        - Camera isn't fixed when spectating during the win screen
-        - Knockback is increased when holding the bomb (bad)
+        - Knockback is increased when holding the bomb (bad) (TO TEST)
         - Add mercy rule
         - Fix wonky points in teams all-duel
+        - Make camping on the spire in Koopa Keep less OP
     - API? (probably not to add more games tho)
     - Mingle:
         - Can cheat by ledge-grabbing the doors

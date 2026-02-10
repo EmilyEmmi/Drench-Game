@@ -566,7 +566,7 @@ function build_game_mode_menu(menu)
                 if i == GAME_MODE_DUEL then
                     enter_menu(4)
                     return
-                elseif gData.level == -1 then
+                elseif type(gData.level) == "table" then
                     enter_menu(5)
                     return
                 end
@@ -867,20 +867,6 @@ menu_data = {
                 return gGlobalSyncTable.teamSelection ~= TEAM_SELECTION_HOST or gGlobalSyncTable.teamCount == 0
             end,
         },
-        {
-            "Disable CS Movesets",
-            function(x)
-                gGlobalSyncTable.disableCs = (x == 1)
-            end,
-            true,
-            function() return (not charSelectExists) or csVersion >= 15 end,
-            currNum = (gGlobalSyncTable.disableCs and 1) or 0,
-            minNum = 0,
-            maxNum = 1,
-            runOnChange = true,
-            nameRef = { "\\#ff5050\\Off", "\\#50ff50\\On" },
-            save = (csVersion < 15 and "disableCs") or "invalid",
-        },
     },
     [3] = { buildFunc = build_game_mode_menu }, -- auto built
     [4] = {
@@ -970,7 +956,7 @@ menu_data = {
             end,
         },
     },
-    [5] = {
+    [5] = { -- TODO: auto build with map list
         {
             "Toad Town",
             function()
