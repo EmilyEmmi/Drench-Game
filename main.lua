@@ -294,6 +294,11 @@ function mario_update(m)
         m.pos.z = m.pos.z + 10 * coss(ceilAngle)
     end
 
+    -- special triple jump from spring
+    if m.action == ACT_TRIPLE_JUMP and m.actionArg == 1 then
+        m.faceAngle.y = m.intendedYaw
+    end
+
     local np = gNetworkPlayers[m.playerIndex]
     local sMario = gPlayerSyncTable[m.playerIndex]
     -- rejoin check
