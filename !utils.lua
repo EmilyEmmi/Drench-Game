@@ -498,13 +498,18 @@ function set_to_spawn_pos(m, yPos)
                 end
             end
         end, true)
+
         if do_solo_debug() then
             ourNum = 15
             alivePlayers = 16
         end
+        
         if not line then
             angle = math.floor((ourNum / alivePlayers) * 0xFFFF) + spawnAngle
         else
+            if alivePlayers > 30 then
+                dist = dist * (30 / alivePlayers)
+            end
             angle = (ourNum % 2 * 0x8000) - 0x4000 + spawnAngle
             dist = ((ourNum + 1) // 2) * dist
         end
@@ -680,11 +685,7 @@ local recentModes = {}
 local recentTotal = 0
 function do_game_mode_selection(openMenu, doOrder)
     local selectedMode = gGlobalSyncTable.selectedMode
-    local maxPick = GAME_MODE_MAX - 2 -- don't pick duel
     local manuallyChose = false
-    if gGlobalSyncTable.includeAllDuel then
-        maxPick = GAME_MODE_MAX - 1 -- DO pick duel
-    end
 
     -- reset picked
     if gGlobalSyncTable.gameState == GAME_STATE_LOBBY then
@@ -692,11 +693,22 @@ function do_game_mode_selection(openMenu, doOrder)
         recentTotal = 0
     end
 
+    -- mark duel as selected if disabled
+    if not (recentModes[GAME_MODE_DUEL] or gGlobalSyncTable.includeAllDuel) then
+        recentTotal = recentTotal + 1
+        -- clear recent modes (if we turn the option on after all games are selected)
+        if recentTotal >= GAME_MODE_MAX then
+            recentModes = {}
+            recentTotal = 1
+        end
+        recentModes[GAME_MODE_DUEL] = 1
+    end
+
     if (gGlobalSyncTable.gameModeSelection == SELECT_MODE_ORDER or gGlobalSyncTable.gameModeSelection == SELECT_MODE_ALL) and doOrder then
-        if gGlobalSyncTable.gameMode == GAME_MODE_DUEL then
-            selectedMode = 0 -- the other equation can select Red Light, Green Light, which is unintuitive
-        else
-            selectedMode = (gGlobalSyncTable.gameMode + 1) % (maxPick + 1)
+        selectedMode = (gGlobalSyncTable.gameMode + 1) % GAME_MODE_MAX
+        -- Skip duel
+        if selectedMode == GAME_MODE_DUEL and not gGlobalSyncTable.includeAllDuel then
+            selectedMode = (selectedMode + 1) % GAME_MODE_MAX
         end
     elseif gGlobalSyncTable.gameModeSelection == SELECT_MODE_CHOOSE or gGlobalSyncTable.gameModeSelection == SELECT_MODE_ORDER then
         manuallyChose = true
@@ -717,21 +729,21 @@ function do_game_mode_selection(openMenu, doOrder)
                 end)
                 if not foundMod then
                     network_send(true, {id = PACKET_GLOBAL_MSG, text = "\\#ffff50\\Since there were no moderators available, the minigame was selected at random."})
-                    selectedMode = math.random(0, maxPick)
+                    selectedMode = math.random(0, GAME_MODE_MAX)
                     manuallyChose = false
                     local LIMIT = 100
                     while recentModes[selectedMode] and LIMIT ~= 0 do
-                        selectedMode = math.random(0, maxPick)
+                        selectedMode = math.random(0, GAME_MODE_MAX)
                         LIMIT = LIMIT - 1
                     end
                 end
             end
         end
     elseif gGlobalSyncTable.gameModeSelection == SELECT_MODE_RANDOM then
-        selectedMode = math.random(0, maxPick)
+        selectedMode = math.random(0, GAME_MODE_MAX)
         local LIMIT = 100
         while recentModes[selectedMode] and LIMIT ~= 0 do
-            selectedMode = math.random(0, maxPick)
+            selectedMode = math.random(0, GAME_MODE_MAX)
             LIMIT = LIMIT - 1
         end
     elseif gGlobalSyncTable.gameModeSelection == SELECT_MODE_ALL then
@@ -753,14 +765,13 @@ function do_game_mode_selection(openMenu, doOrder)
     end
     
     if selectedMode ~= -1 and recentModes[selectedMode] == nil then
-        recentModes[selectedMode] = 1
         recentTotal = recentTotal + 1
         -- clear recent modes
-        if recentTotal >= maxPick+1 then
+        if recentTotal >= GAME_MODE_MAX then
             recentModes = {}
-            recentModes[selectedMode] = 1
             recentTotal = 1
         end
+        recentModes[selectedMode] = 1
     end
     gGlobalSyncTable.selectedMode = selectedMode
 end

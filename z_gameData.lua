@@ -1,6 +1,8 @@
 local duelSideTimer = 30
 local sonicMingleRingTimer = 0
 
+MISC_GAME_MAPS = { LEVEL_TOAD_TOWN, LEVEL_KOOPA_KEEP }
+
 GAME_MODE_DATA = {
     [GAME_MODE_GLASS] = {
         name = "Glass Bridge",
@@ -11,14 +13,14 @@ GAME_MODE_DATA = {
         kbStrength = 5,
         music = "dire",
         marioUpdateFunc = function(m) -- switch to custom falling action
-            if m.action & ACT_GROUP_MASK ~= ACT_GROUP_CUTSCENE and m.action ~= ACT_GB_FALL and m.action ~= ACT_BUBBLED
+            if m.action & ACT_GROUP_MASK ~= ACT_GROUP_CUTSCENE and m.action ~= ACT_GB_FALL and m.action ~= ACT_SPECTATE
                 and m.floor and m.floor.type == SURFACE_DEATH_PLANE and m.vel.y <= -75 and m.pos.y - m.floorHeight <= 8000 then
                 set_mario_action(m, ACT_GB_FALL, 0)
             end
         end,
         victoryFunc = function(m)
             if (m.action & ACT_FLAG_AIR == 0 and m.floor and m.floor.type == SURFACE_TIMER_END) then
-                if gPlayerSyncTable[m.playerIndex].earnedPoints >= 20 then
+                if gPlayerSyncTable[m.playerIndex].roundScore >= 10 then
                     return true
                 elseif m.playerIndex == 0 then
                     play_sound(SOUND_MENU_CAMERA_BUZZ, gGlobalSoundSource)
@@ -40,7 +42,7 @@ GAME_MODE_DATA = {
             local sAttacker = gPlayerSyncTable[attacker.playerIndex]
             local sVictim = gPlayerSyncTable[victim.playerIndex]
 
-            if (sAttacker.earnedPoints == 0 or sVictim.earnedPoints == 0) then
+            if (sAttacker.roundScore == 0 or sVictim.roundScore == 0) then
                 return false
             end
         end,
@@ -281,7 +283,7 @@ GAME_MODE_DATA = {
         name = "Star Steal",
         desc =
         "Get the Star, and hold it to increase your score! Hit a player to take the Star from them! You'll be eliminated if your score is too low. Hmmm, this seems familiar...",
-        level = { LEVEL_TOAD_TOWN, LEVEL_KOOPA_KEEP }, -- selects toad town or koopa keep
+        level = MISC_GAME_MAPS, -- selects toad town or koopa keep
         interact = PLAYER_INTERACTIONS_PVP,            -- so invulnerability frames exist
         firstRoundTime = 90 * 30,                      -- 1 minute and 30 seconds
         roundTime = 30 * 30,                           -- 30 seconds
@@ -362,7 +364,7 @@ GAME_MODE_DATA = {
         name = "Bomb Tag",
         desc =
         "Don't hold a Bob-Omb! Tag another player to pass your Bob-Omb to them. If you're holding a Bob-Omb when time runs out... you can probably guess what happens.",
-        level = { LEVEL_TOAD_TOWN, LEVEL_KOOPA_KEEP }, -- selects toad town or koopa keep
+        level = MISC_GAME_MAPS, -- selects toad town or koopa keep
         interact = PLAYER_INTERACTIONS_PVP,            -- so invulnerability frames exist
         kbStrength = 10,
         roundTime = 30 * 30,                           -- 30 seconds
@@ -818,7 +820,7 @@ GAME_MODE_DATA = {
         "Ready to test your luck? You have a 5% chance to kill a player when you hit them, but each failed hit will increase your odds by 10%! Also, getting hit will increase your odds by 5%. Be the last one standing to win!",
         descElim =
         "Ready to test your luck? You have a 5% chance to kill a player when you hit them, but each failed hit will increase your odds by 10%! Also, getting hit will increase your odds by 5%. Who will survive?",
-        level = { LEVEL_TOAD_TOWN, LEVEL_KOOPA_KEEP }, -- selects toad town or koopa keep
+        level = MISC_GAME_MAPS, -- selects toad town or koopa keep
         interact = PLAYER_INTERACTIONS_PVP,            -- so invulnerability frames exist
         kbStrength = 25,
         doPlacementPoints = true,

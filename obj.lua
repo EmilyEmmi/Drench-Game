@@ -199,9 +199,10 @@ function glass_init(o)
     o.oFlags = OBJ_FLAG_UPDATE_GFX_POS_AND_ANGLE
     o.oDrawingDistance = 10000
     o.collisionData = smlua_collision_util_get("glassPane_collision")
+    o.oBobombBlinkTimer = 0
 
     if o.oSyncID ~= 0 then
-        network_init_object(o, false, {"oAction", "activeFlags", "oBobombFuseTimer"})
+        network_init_object(o, false, {"oAction", "activeFlags", "oBobombFuseTimer", "oBobombBlinkTimer"})
     end
 end
 
@@ -218,16 +219,28 @@ function glass_loop(o)
         load_object_collision_model()
         local m0 = gMarioStates[0]
         local sMario0 = gPlayerSyncTable[0]
-        if sMario0.earnedPoints == nil then return end
-        local newPoints = (o.oBehParams2ndByte*2-sMario0.earnedPoints+2)
-        if m0.marioObj and m0.marioObj.platform == o and (not sMario0.eliminated) and newPoints > 0 then
-            if newPoints <= 2 then
-                -- points are still calculated even in elimination mode because they are used to determine if PVP is allowed
+        if sMario0.earnedPoints == nil or sMario0.roundScore == nil then return end
+        if m0.marioObj and m0.marioObj.platform == o and (not sMario0.eliminated) and sMario0.roundScore <= o.oBehParams2ndByte then
+            if sMario0.roundScore == o.oBehParams2ndByte then
+                sMario0.roundScore = o.oBehParams2ndByte + 1
+                
                 if not gGlobalSyncTable.eliminationMode then
-                    djui_chat_message_create("\\#ffff50\\+"..newPoints.." points")
+                    local newPoints = 2
+                    -- bonus points for going first
+                    if o.oBobombBlinkTimer == 0 and o.oBobombFuseTimer ~= 2 then
+                        o.oBobombBlinkTimer = 1
+                        newPoints = 3
+                        network_send_object(o, true)
+                    end
+                    sMario0.earnedPoints = sMario0.earnedPoints + newPoints
+
+                    local text = "\\#ffff50\\+2 points"
+                    if newPoints == 3 then
+                        text = text .. " (+1 for going first)"
+                    end
+                    djui_chat_message_create(text)
                     play_sound(SOUND_GENERAL_COIN, gGlobalSoundSource)
                 end
-                sMario0.earnedPoints = sMario0.earnedPoints + newPoints
             else
                 play_sound(SOUND_MENU_CAMERA_BUZZ, gGlobalSoundSource)
                 djui_chat_message_create("\\#ff5050\\You aren't allowed to skip any glass panes!")
@@ -275,12 +288,12 @@ function gb_thwomp_loop(o)
         end
 
         local sMario = gPlayerSyncTable[m.playerIndex]
-        local expectedPoints = 0
+        local expectedProgress = 0
         if gGlobalSyncTable.gameState == GAME_STATE_ACTIVE then
             -- We expect at least one pane in the first 10 seconds, and then another every 20 seconds
-            expectedPoints = ((gGlobalSyncTable.gameTimer + 300) // 600) * 2
+            expectedProgress = ((gGlobalSyncTable.gameTimer + 300) // 600)
         end
-        if sMario.eliminated or sMario.victory or (sMario.earnedPoints == nil) or sMario.earnedPoints >= expectedPoints then
+        if sMario.eliminated or sMario.victory or (sMario.earnedPoints == nil) or sMario.roundScore >= expectedProgress then
             o.oTimer = 0
             m.health = 0x880
             return

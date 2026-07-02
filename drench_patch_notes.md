@@ -24,6 +24,8 @@ v1.2 (WIP)
     - Support has been added for Sonic in Extra Characters Plus. Note that he'll have to use the Slow Down boots in some games.
     - Glass Bridge:
         - Players will be eliminated after not making progress every 20 seconds instead of every 30 seconds (for the first round, it's 10 seconds).
+        - Being the first player to land on a glass pane earns you a bonus point
+            - This means it is now possible to earn more than 20 points from this game
         - Reduced knockback by half
         - You can now ledge grab the glass panes
     - Red Light, Green Light
@@ -49,6 +51,9 @@ v1.2 (WIP)
     - Duel:
         - Team games are now Best of 3 instead of Best of 5.
         - Final Duel can now be selected with 2 teams, but ONLY if Elimination Mode is enabled.
+    - Koopa Keep:
+        - Adjusted the collision on the spiked spire to prevent unexpected steep jumps.
+        - A spring was added near the spiked spire to make camping there less powerful.
 - Visual Changes:
     - The sidebar now displays "Elimination Mode" when... playing in Elimination Mode.
     - When playing with uneven teams, points are adjusted AFTER the "[Player] wins!" message to make the message reflect the actual winner(s).
@@ -78,6 +83,7 @@ v1.2 (WIP)
     - More desyncs will be corrected automatically; you can also use the /desync command (host or moderator only) to fix problems
     - Fixed some collision issues on Toad Town and Koopa Keep
     - Fixed Random game selection sometimes skipping certain modes
+    - Fixed occassional popups saying "[Player] died"
     - Glass Bridge:
         - Fixed a bug where spectating a falling player after reaching the end could cause you to lose as well
     - Mingle:
@@ -85,32 +91,7 @@ v1.2 (WIP)
 - Backend Changes
     - The sound folder was reduced by over 20 MB!!!
         - This was done by compressing/trimming the gigantic audio files (THANK YOU SQUISHY!!!)
-- TODO:
-    - Misc:
-        - Timer options: I think a per round time and number of rounds will be enough. Duels can also have best of setting
-        - More Star Steal/Bomb Tag maps?
-            - Gamble Gallery: Similar theming to Glass Bridge with dice and card obstacles (also like that old sticker star screenshot)
-        - I did random 8 games and it picked KOTH twice? Look into this (FIXED?)
-        - No points earned when playing All Duel on bizzare's stream (prob also desync)
-        - Test Elimination Mode a bit more, especially with dice block battle (SEEMS GOOD)
-        - PRIORITY: Players are reviving in certain games now? Seen on RLGL and Lights Out (maybe fixed?)
-        - Toad town has a wall that's hard to see near the 1up house
-        - Fix wonky points in teams all-duel
-        - Make camping on the spire in Koopa Keep less OP
-    - API? (probably not to add more games tho)
-    - Mingle:
-        - Are the amount of doors calculated correctly? (No)
-    - King Of The Hill:
-        - Maybe move the cloud a bit to make that jump easier
-        - Collision is also pretty jank still
-        - More routes/platforming (I suck at blender though, idk what I'm going to do about this)
-    - Lights Out:
-        - Possible bug where you can stay on chains forever (fixed?)
-    - NEW GAMES??? (maybe)
-        - Island game from crab game I can't remember the name of: Pretty similar to Hexagon Heat. Avoid the sinking platforms!
-        - Sugar Honeycombs/Dalgona: Similar to Crazy Cutters. Trace with feet, or with a jackhammer? Also want player interaction somehow
-            - Also keyboard players exist :/ maybe they could play with the mouse?
-        - Cannon game (TheIncredibleHolc's idea): Shoot target with cannon to get points. Furthest dies? (idk about this one)
+    - Fixed players spawning out of bounds in Red Light, Green Light if there were 32 players or more present (of course, this doesn't matter for the base game...)
 
 v1.1
 - Attacking your teammates in Lights Out will no longer give points, and killing your teammates in Duels will no longer count as your kill, meaning you won't get a full heal.

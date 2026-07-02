@@ -39,6 +39,7 @@ local hud_hints = {
     "I'ma Wario, and I'ma gonna win Duels with my exclusive info! You can get a full heal if you take out another player. It's the perfect strategy, since I'm the best brawler around!",
     "This mod is brought to you by our (totally legit) sponsors from the Squeex YouTube community! You can see their ads on the monitor in the lobby.",
     "This audio files used to take up 23.7 MB! It took ages to download. After Squishy trimmed and compressed all of the audio, this size was reduced to just over 2.5 MB. Wow...",
+    "Wario Time! I heard you get bonus points for going first in Glass Bridge now. I can't believe they ruined my strategy! Waaahhh!",
 }
 function on_hud_render()
     djui_hud_set_resolution(RESOLUTION_N64)
@@ -556,6 +557,7 @@ for i=1,#TEAM_DATA do
 end
 
 local menuSelectedMode = -1
+local gameMapList = {}
 function build_game_mode_menu(menu)
     for i = 0, GAME_MODE_MAX - 1 do
         local gData = GAME_MODE_DATA[i]
@@ -567,6 +569,7 @@ function build_game_mode_menu(menu)
                     enter_menu(4)
                     return
                 elseif type(gData.level) == "table" then
+                    gameMapList = gData.level
                     enter_menu(5)
                     return
                 end
@@ -576,6 +579,33 @@ function build_game_mode_menu(menu)
             end
         })
     end
+end
+
+function build_map_menu(menu)
+    for i, level in ipairs(gameMapList) do
+        local levelName = get_level_name(get_level_course_num(level), level, 1)
+        table.insert(menu, {
+            levelName,
+            function()
+                gGlobalSyncTable.gameLevelOverride = level
+                gGlobalSyncTable.selectedMode = menuSelectedMode
+                local gData = GAME_MODE_DATA[menuSelectedMode or 0]
+                djui_chat_message_create("Selected \\#ffff50\\"..gData.name)
+                inMenu = false
+            end,
+        })
+    end
+
+    table.insert(menu, {
+        "Random",
+        function()
+            gGlobalSyncTable.gameLevelOverride = -1
+            gGlobalSyncTable.selectedMode = menuSelectedMode
+            local gData = GAME_MODE_DATA[menuSelectedMode or 0]
+            djui_chat_message_create("Selected \\#ffff50\\"..gData.name)
+            inMenu = false
+        end,
+    })
 end
 
 function build_team_select_menu(menu)
@@ -956,38 +986,7 @@ menu_data = {
             end,
         },
     },
-    [5] = { -- TODO: auto build with map list
-        {
-            "Toad Town",
-            function()
-                gGlobalSyncTable.gameLevelOverride = LEVEL_TOAD_TOWN
-                gGlobalSyncTable.selectedMode = menuSelectedMode
-                local gData = GAME_MODE_DATA[menuSelectedMode or 0]
-                djui_chat_message_create("Selected \\#ffff50\\"..gData.name)
-                inMenu = false
-            end,
-        },
-        {
-            "Koopa Keep",
-            function()
-                gGlobalSyncTable.gameLevelOverride = LEVEL_KOOPA_KEEP
-                gGlobalSyncTable.selectedMode = menuSelectedMode
-                local gData = GAME_MODE_DATA[menuSelectedMode or 0]
-                djui_chat_message_create("Selected \\#ffff50\\"..gData.name)
-                inMenu = false
-            end,
-        },
-        {
-            "Random",
-            function()
-                gGlobalSyncTable.gameLevelOverride = -1
-                gGlobalSyncTable.selectedMode = menuSelectedMode
-                local gData = GAME_MODE_DATA[menuSelectedMode or 0]
-                djui_chat_message_create("Selected \\#ffff50\\"..gData.name)
-                inMenu = false
-            end,
-        },
-    },
+    [5] = { buildFunc = build_map_menu },
     [6] = { buildFunc = build_team_select_menu }, -- auto built
 }
 

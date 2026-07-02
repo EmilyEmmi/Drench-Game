@@ -1,4 +1,4 @@
--- name: \\#00ffd5\\Drench Game v1.2 (beta 2.10.2026)
+-- name: \\#00ffd5\\Drench Game v1.2 (beta 7.2.2026)
 -- description: Squid Game in Mario 64!\n\nCommissioned by Drenchy\nInspired by Dani's \"Crab Game\"\n\nProgramming: EmilyEmmi\n\nMaps: biobak, EmilyEmmi, Woissil\n\nSoundtrack: murioz, Awesome Seal Guy (YT)\n\nVoice Acting:\nEspi as Toad\nSqueex as Mingle Callout\nTrashcam as Waluigi\n\nAds: Squeex's Community\n\nSpecial Thanks: Squishy
 -- category: gamemode
 -- incompatible: gamemode
@@ -22,7 +22,7 @@ GAME_MODE_BOMB_TAG = 4
 GAME_MODE_MINGLE = 5
 GAME_MODE_LIGHTS_OUT = 6
 GAME_MODE_DICE = 7
-GAME_MODE_DUEL = 8 -- needs to be at the end due to its special nature
+GAME_MODE_DUEL = 8
 GAME_MODE_MAX = 9
 
 TEAM_SELECTION_RANDOM = 0
@@ -84,7 +84,6 @@ gGlobalSyncTable.gameLevelOverride = -1
 gGlobalSyncTable.teamCount = 0
 gGlobalSyncTable.teamSelection = TEAM_SELECTION_RANDOM
 gGlobalSyncTable.includeAllDuel = false
-gGlobalSyncTable.endWith1v1 = false
 
 gGlobalSyncTable.starStealOwner = 255
 gGlobalSyncTable.minglePlayerCount = 1
@@ -1075,7 +1074,7 @@ function update()
                     if (not sMario.eliminated) and (gData.victoryFunc == nil or sMario.victory) then
                         if gData.pointCalcFunc then
                             sMario.earnedPoints = gData.pointCalcFunc(i) or 0
-                        else
+                        elseif sMario.earnedPoints < 20 then
                             sMario.earnedPoints = 20
                         end
                     elseif (gData.doEliminationPoints or gData.autoElimination) and gGlobalSyncTable.round > 1 and sMario.roundEliminated and sMario.roundEliminated >= 1 then

@@ -1,0 +1,25 @@
+- Misc:
+    - Timer options: I think a per round time and number of rounds will be enough. Duels can also have best of setting
+    - More Star Steal/Bomb Tag maps?
+        - Gamble Gallery: Similar theming to Glass Bridge with dice and card obstacles (also like that old sticker star screenshot)
+    - I did random 8 games and it picked KOTH twice? Look into this (FIXED?)
+    - No points earned when playing All Duel on bizzare's stream (prob also desync)
+    - Test Elimination Mode a bit more, especially with dice block battle (SEEMS GOOD)
+    - PRIORITY: Players are reviving in certain games now? Seen on RLGL and Lights Out (maybe fixed?)
+    - Toad town has a wall that's hard to see near the 1up house
+    - Fix wonky points in teams all-duel
+    - Make camping on the spire in Koopa Keep less OP
+- API? (probably not to add more games tho)
+- Mingle:
+    - Are the amount of doors calculated correctly? (No)
+- King Of The Hill:
+    - Maybe move the cloud a bit to make that jump easier
+    - Collision is also pretty jank still
+    - More routes/platforming (I suck at blender though, idk what I'm going to do about this)
+- Lights Out:
+    - Possible bug where you can stay on chains forever (fixed?)
+- NEW GAMES??? (maybe)
+    - Island game from crab game I can't remember the name of: Pretty similar to Hexagon Heat. Avoid the sinking platforms!
+    - Sugar Honeycombs/Dalgona: Similar to Crazy Cutters. Trace with feet, or with a jackhammer? Also want player interaction somehow
+        - Also keyboard players exist :/ maybe they could play with the mouse?
+    - Cannon game (TheIncredibleHolc's idea): Shoot target with cannon to get points. Furthest dies? (idk about this one)

@@ -33,6 +33,7 @@ const LevelScript level_bowser_castle_entry[] = {
 		OBJECT(MODEL_NONE, -1376, -3158, -1689, 0, 0, 0, (120), id_bhvArenaSpring),
 		OBJECT(MODEL_NONE, 2723, -3158, -3634, 0, 0, 0, (120), id_bhvArenaSpring),
 		OBJECT(MODEL_NONE, 2647, -3158, 100, 0, 0, 0, (120), id_bhvArenaSpring),
+		OBJECT(MODEL_NONE, -55, -1707, 666, 0, 0, 0, (120), id_bhvArenaSpring),
 		OBJECT(MODEL_STAR, 1210, -1037, -2088, 0, 0, 0, 0x00000000, bhvStealStar),
 		OBJECT(MODEL_NONE, 1647, -719, -2088, 0, 0, 0, (10 << 16), bhvSpinAirborneWarp),
 		TERRAIN(bowser_castle_area_1_collision),
