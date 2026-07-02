@@ -10,6 +10,8 @@
     - Fix wonky points in teams all-duel
     - Make camping on the spire in Koopa Keep less OP
 - API? (probably not to add more games tho)
+    - TODO: Music and SFX support, get team count
+    - TODO: Add object IDs
 - Mingle:
     - Are the amount of doors calculated correctly? (No)
 - King Of The Hill:
