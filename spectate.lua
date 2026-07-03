@@ -27,7 +27,7 @@ function act_spectate(m)
     -- allow switching; auto switch if our player is invalid
     local specM = gMarioStates[spectatedPlayer]
     local change = 0
-    if spectatedPlayer == 0 or is_player_active(specM) == 0 then
+    if spectatedPlayer == 0 or is_player_active(specM) == 0 or specM.action == ACT_SPECTATE then
         change = 1
         lastDirTime = 15
         m.actionTimer = 15
@@ -51,7 +51,7 @@ function act_spectate(m)
             spectatedPlayer = (spectatedPlayer + change) % MAX_PLAYERS
             limit = limit + 1
             specM = gMarioStates[spectatedPlayer]
-            if spectatedPlayer ~= 0 and is_player_active(specM) ~= 0 then
+            if spectatedPlayer ~= 0 and is_player_active(specM) ~= 0 and specM.action ~= ACT_SPECTATE then
                 break
             elseif limit >= MAX_PLAYERS then
                 return

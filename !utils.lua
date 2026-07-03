@@ -657,7 +657,7 @@ end
 
 -- get the score needed to not die this round
 function get_safe_score(standings)
-    local safeScore = 9990
+    local safeScore = 9999
     local prevScore = 0
     local toEliminate = 0
     -- work backwards
@@ -729,21 +729,21 @@ function do_game_mode_selection(openMenu, doOrder)
                 end)
                 if not foundMod then
                     network_send(true, {id = PACKET_GLOBAL_MSG, text = "\\#ffff50\\Since there were no moderators available, the minigame was selected at random."})
-                    selectedMode = math.random(0, GAME_MODE_MAX)
+                    selectedMode = math.random(0, GAME_MODE_MAX-1)
                     manuallyChose = false
                     local LIMIT = 100
                     while recentModes[selectedMode] and LIMIT ~= 0 do
-                        selectedMode = math.random(0, GAME_MODE_MAX)
+                        selectedMode = math.random(0, GAME_MODE_MAX-1)
                         LIMIT = LIMIT - 1
                     end
                 end
             end
         end
     elseif gGlobalSyncTable.gameModeSelection == SELECT_MODE_RANDOM then
-        selectedMode = math.random(0, GAME_MODE_MAX)
+        selectedMode = math.random(0, GAME_MODE_MAX-1)
         local LIMIT = 100
         while recentModes[selectedMode] and LIMIT ~= 0 do
-            selectedMode = math.random(0, GAME_MODE_MAX)
+            selectedMode = math.random(0, GAME_MODE_MAX-1)
             LIMIT = LIMIT - 1
         end
     elseif gGlobalSyncTable.gameModeSelection == SELECT_MODE_ALL then

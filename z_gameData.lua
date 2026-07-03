@@ -1,5 +1,6 @@
 local duelSideTimer = 30
 local sonicMingleRingTimer = 0
+local prevDiceSpeedBoost = false
 
 MISC_GAME_MAPS = { LEVEL_TOAD_TOWN, LEVEL_KOOPA_KEEP }
 
@@ -471,11 +472,20 @@ GAME_MODE_DATA = {
                 sMario.holdingBomb = true
             end
         end,
+        beforePhysStepFunc = function(m, stepType)
+            -- Speed boost for bomb players; don't affect custom or knockback actions
+            if gPlayerSyncTable[m.playerIndex].holdingBomb and m.action & (ACT_FLAG_INVULNERABLE | ACT_FLAG_CUSTOM_ACTION) == 0 then
+                m.vel.x = m.vel.x * 1.1
+                m.vel.z = m.vel.z * 1.1
+            end
+        end,
     },
     [GAME_MODE_KOTH] = {
         name = "King Of The Hill",
         desc =
-        "Get to the top of the hill! Stand in the circle to increase your score. If your score is too low when time runs out, you'll be eliminated! Stand your ground!",
+        "Get to the top of the hill! Stand in the circle to increase your score. You'll earn more points if you're alone in the circle. If your score is too low when time runs out, you'll be eliminated! Stand your ground!",
+        descTeams =
+        "Get to the top of the hill! Stand in the circle to increase your score. You'll earn more points if only your team is in the circle. If your score is too low when time runs out, you'll be eliminated! Stand your ground!",
         level = LEVEL_KOTH,
         interact = PLAYER_INTERACTIONS_PVP, -- so invulnerability frames exist
         kbStrength = 25,
@@ -484,7 +494,7 @@ GAME_MODE_DATA = {
         maxRounds = 5,
         autoElimination = true,
         doEliminationPoints = true,
-        mercyRuleScale = 10,          -- Max points we can gain in 1 second, used to calculate mercy rule
+        mercyRuleScale = 20,          -- Max points we can gain in 1 second, used to calculate mercy rule
         marioUpdateFunc = function(m) -- full health, and that's it
             m.health = 0x880
             sonic_set_full_rings(m.playerIndex)
@@ -813,13 +823,18 @@ GAME_MODE_DATA = {
             end
             return true
         end,
+        losePointCalcFunc = function(index)
+            -- Earn 10 points if you get one win
+            local sMario = gPlayerSyncTable[index]
+            return math.min(sMario.roundScore * 10, 20)
+        end,
     },
     [GAME_MODE_DICE] = {
         name = "Dice Block Battle",
         desc =
-        "Ready to test your luck? You have a 5% chance to kill a player when you hit them, but each failed hit will increase your odds by 10%! Also, getting hit will increase your odds by 5%. Be the last one standing to win!",
+        "Ready to test your luck? You have a 5% chance to kill a player when you hit them, but each failed roll will increase your odds by 10%! Also, getting hit will increase your odds by 5%. Be the last one standing to win!",
         descElim =
-        "Ready to test your luck? You have a 5% chance to kill a player when you hit them, but each failed hit will increase your odds by 10%! Also, getting hit will increase your odds by 5%. Who will survive?",
+        "Ready to test your luck? You have a 5% chance to kill a player when you hit them, but each failed roll will increase your odds by 10%! Also, getting hit will increase your odds by 5%. Who will survive?",
         level = MISC_GAME_MAPS, -- selects toad town or koopa keep
         interact = PLAYER_INTERACTIONS_PVP,            -- so invulnerability frames exist
         kbStrength = 25,
@@ -891,6 +906,35 @@ GAME_MODE_DATA = {
             local chance = math.min(gPlayerSyncTable[0].roundScore + 1, dieMax)
             local percent = math.round(chance / dieMax * 100)
             add_line_to_table(sideBarLines, string.format("\\#ff5050\\Chance to kill: (%d%%)", percent), lengthLimit)
+        end,
+        beforePhysStepFunc = function(m, stepType)
+            local alivePlayers = 0
+            local maxScore = 0
+            for_each_connected_player(function(i)
+                local sMario = gPlayerSyncTable[i]
+                if (not sMario.eliminated) then
+                    alivePlayers = alivePlayers + 1
+                    if maxScore < sMario.roundScore then
+                        maxScore = sMario.roundScore
+                    elseif maxScore == sMario.roundScore then
+                        maxScore = 9999 -- No speed boost for anyone
+                        return true
+                    end
+                end
+                if alivePlayers >= 3 then return true end
+            end)
+
+            local sMario = gPlayerSyncTable[m.playerIndex]
+            if alivePlayers == 2 and sMario.roundScore >= maxScore and not sMario.eliminated then
+                m.vel.x = m.vel.x * 1.1
+                m.vel.z = m.vel.z * 1.1
+                if m.playerIndex == 0 and not prevDiceSpeedBoost then
+                    prevDiceSpeedBoost = true
+                    djui_chat_message_create("\\#ffff50\\You now have a slight speed boost!")
+                end
+            elseif m.playerIndex == 0 then
+                prevDiceSpeedBoost = false
+            end
         end,
     },
 }

@@ -1,8 +1,9 @@
 v1.2 (WIP)
-- NEW GAMES!
-    - Dice Block Battle: Takes place on the same maps as Star Steal and Bomb Tag. You have a 5% chance to kill, but your odds increase for every failed kill and every time you survive a roll. Be the last one standing to win!
-        - Also contains a new music track by Murioz, who also created many of the other music tracks
-        - TODO: Points based on placement (TO TEST)
+- NEW GAME! Dice Block Battle:
+    - Takes place on the same maps as Star Steal and Bomb Tag
+    - You have a 5% chance to kill, but your odds increase for every failed kill and every time you survive a roll
+    - Be the last one standing to win!
+    - Also contains a new music track by Murioz, who also created many of the other music tracks
 - New Features:
     - Added indicators for which players moved on the leaderboard (like in Mario Kart)
     - Added a Music toggle, usable by all players (The setting "Mingle Only" only plays the Mingle track)
@@ -33,10 +34,11 @@ v1.2 (WIP)
         - Toad's eye level was moved down by 200 units, and the position checked for was moved down by 20 units. This means it should be much easier to hide behind objects.
         - Toad kills players 7 frames after fully turning around instead of only 5.
     - Star Steal and King Of The Hill:
-        - (Star Steal Only): The first round is now 1 minute and 30 seconds instead of 2 minutes.
+        - (Star Steal only): The first round is now 1 minute and 30 seconds instead of 2 minutes.
         - Points are now counted in tenths of a second instead of whole seconds.
         - You can no longer be more than 20 points ahead. Your score will stop increasing at that point.
-        - If there's two players left and one of the players is too far behind to possibly win (under 20 points, but less than 20 seconds left), the game will end immediately.
+        - If there's two players left and one of the players is too far behind to possibly win, the game will end immediately.
+        - (King Of The Hill only): You now earn twice as many points if no other opponents are in the circle.
     - Bomb Tag:
         - Players holding a bomb now move 10% faster.
         - Instead of between 1-2 bombs being assigned at random, bombs are assigned based on player count.
@@ -70,6 +72,8 @@ v1.2 (WIP)
         - Players with full health will now have a sparkly trail.
         - "Sudden Death!" is now displayed on the sidebar when Sudden Death is active.
         - Changed the description to provide more information.
+    - Koopa Keep:
+        - The ground and walls in the underground area no longer have camera collision
 - Bug Fixes:
     - Removed an exploit to grant your team multiplied points
     - Fixed players sometimes earning way more points than they should
@@ -79,8 +83,8 @@ v1.2 (WIP)
     - Fixed Final Duel with teams picking two people on the same team
     - Fixed the ending only showing one player from the winning team of a Final Duel
     - Fixed new players sometimes being un-eliminated by default, causing the music in certain minigames to briefly change
-    - Fixed player spawn positions sometimes not being synced between players (NOT FIXED!!!)
-    - More desyncs will be corrected automatically; you can also use the /desync command (host or moderator only) to fix problems
+    - Maybe fixed player spawn positions sometimes not being synced between players
+    - More desyncs will be corrected automatically; you can also say "desync" in chat to attempt an automatic fix
     - Fixed some collision issues on Toad Town and Koopa Keep
     - Fixed Random game selection sometimes skipping certain modes
     - Fixed occassional popups saying "[Player] died"
@@ -88,10 +92,14 @@ v1.2 (WIP)
         - Fixed a bug where spectating a falling player after reaching the end could cause you to lose as well
     - Mingle:
         - Fixed being able to ledge grab the doors to avoid dying during the carousel phase.
+    - Duel:
+        - Fixed points being distributed based on the amount of teammates alive during the final round
+    - Toad Town:
+        - Fixed a miscolored wall near the 1-Up House
 - Backend Changes
     - The sound folder was reduced by over 20 MB!!!
         - This was done by compressing/trimming the gigantic audio files (THANK YOU SQUISHY!!!)
-    - Fixed players spawning out of bounds in Red Light, Green Light if there were 32 players or more present (of course, this doesn't matter for the base game...)
+    - Fixed players spawning out of bounds in Red Light, Green Light if there were 32 players or more present (of course, this doesn't matter in the base game...)
 
 v1.1
 - Attacking your teammates in Lights Out will no longer give points, and killing your teammates in Duels will no longer count as your kill, meaning you won't get a full heal.

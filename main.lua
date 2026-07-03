@@ -640,7 +640,7 @@ function mario_update(m)
                 -- amount of points we can possibly have in the remaining time
                 local maxPossibleScore = gData.mercyRuleScale * math.ceil((roundTime - gGlobalSyncTable.roundTimer) / 30)
                 maxPossibleScore = sMario.roundScore + maxPossibleScore
-                if roundTime ~= 0 and maxPossibleScore < storedSafeScore then
+                if roundTime ~= 0 and maxPossibleScore < storedSafeScore and storedSafeScore ~= 9999 then
                     local alivePlayers = 0
                     for_each_connected_player(function(index)
                         local sMario2 = gPlayerSyncTable[index]
@@ -1071,12 +1071,14 @@ function update()
                 for_each_connected_player(function(i)
                     local sMario = gPlayerSyncTable[i]
                     if sMario.points == nil then sMario.points = 0 end
-                    if (not sMario.eliminated) and (gData.victoryFunc == nil or sMario.victory) then
+                    if sMario.victory or (gData.victoryFunc == nil and not sMario.eliminated) then
                         if gData.pointCalcFunc then
                             sMario.earnedPoints = gData.pointCalcFunc(i) or 0
                         elseif sMario.earnedPoints < 20 then
                             sMario.earnedPoints = 20
                         end
+                    elseif gData.losePointCalcFunc then
+                        sMario.earnedPoints = gData.losePointCalcFunc(i) or 0
                     elseif (gData.doEliminationPoints or gData.autoElimination) and gGlobalSyncTable.round > 1 and sMario.roundEliminated and sMario.roundEliminated >= 1 then
                         sMario.earnedPoints = math.floor(((sMario.roundEliminated - 1) / gGlobalSyncTable.round) * 20) -- points based on total rounds
                     elseif gData.doPlacementPoints and sMario.roundEliminated and sMario.roundEliminated >= 1 then
@@ -1279,10 +1281,9 @@ hook_event(HOOK_ON_DEATH, on_death)
 function before_phys_step(m, stepType)
     if gGlobalSyncTable.gameState ~= GAME_STATE_ACTIVE then return end
 
-    if gGlobalSyncTable.gameMode == GAME_MODE_BOMB_TAG and gPlayerSyncTable[m.playerIndex].holdingBomb
-    and m.action & (ACT_FLAG_INVULNERABLE | ACT_FLAG_CUSTOM_ACTION) == 0 then -- don't affect custom or knockback actions
-        m.vel.x = m.vel.x * 1.1
-        m.vel.z = m.vel.z * 1.1
+    local gData = GAME_MODE_DATA[gGlobalSyncTable.gameMode or 0]
+    if gData and gData.beforePhysStepFunc then
+        return gData.beforePhysStepFunc(m, stepType)
     end
 end
 hook_event(HOOK_BEFORE_PHYS_STEP, before_phys_step)
@@ -1779,19 +1780,14 @@ end
 
 hook_event(HOOK_ON_PACKET_RECEIVE, on_packet_receive)
 
--- the one chat command
-function desync_fix_command(msg)
-    if network_is_server() then
+-- Correct desync if someone says "desync" in chat
+function on_chat_message(m, msg)
+    if not (network_is_server() and msg) then return end
+
+    if msg:lower():find("desync") then
+        djui_chat_message_create("Attempting to correct desync...")
         on_packet_request_desync_fix({}, true)
-    elseif network_is_moderator() then
-        network_send_to(1, true, {
-            id = PACKET_REQUEST_DESYNC_FIX,
-        })
-    else
-        djui_chat_message_create("\\#ff5050\\You have permission to perform this command... or DO you?\n(No, you don't have moderator)")
-        return true
     end
-    djui_chat_message_create("Attempting to correct desync...")
     return true
 end
-hook_chat_command("desync", "- Attempt to fix desync issues", desync_fix_command)
+hook_event(HOOK_ON_CHAT_MESSAGE, on_chat_message)

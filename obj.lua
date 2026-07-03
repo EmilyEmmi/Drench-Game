@@ -105,7 +105,8 @@ function lock_switch_loop(o)
     local anyPlayerOnPlatform = false
     for i=0,MAX_PLAYERS-1 do
         local m = gMarioStates[i]
-        if (is_player_active(m) ~= 0) and m.marioObj and m.marioObj.platform == o then
+        if (is_player_active(m) ~= 0) and m.action ~= ACT_SPECTATE
+        and m.marioObj and m.marioObj.platform == o then
             anyPlayerOnPlatform = true
             break
         end
@@ -282,7 +283,8 @@ function gb_thwomp_loop(o)
     if o.oAction == 0 then
         cur_obj_disable_rendering()
         local m = gMarioStates[o.oBehParams]
-        if (not m) or is_player_active(m) == 0 or m.action == ACT_GB_FALL or m.health <= 0xFF then
+        if (not m) or is_player_active(m) == 0 or m.action == ACT_SPECTATE
+        or m.action == ACT_GB_FALL or m.health <= 0xFF then
             o.oTimer = 0
             return
         end
@@ -678,6 +680,7 @@ function koth_area_init(o)
     obj_set_model_extended(o, E_MODEL_KOTH_AREA)
     o.oFlags = OBJ_FLAG_UPDATE_GFX_POS_AND_ANGLE
     o.header.gfx.skipInViewCheck = true
+    o.oBobombBlinkTimer = 0
 end
 
 ---@param o Object
@@ -697,21 +700,33 @@ function koth_area_loop(o)
     end
 
     local inside = false
-    local m = gMarioStates[0]
-    if (is_player_active(m) ~= 0) and m.marioObj and m.pos.y >= o.oPosY and lateral_dist_between_objects(m.marioObj, o) < 500 then
-        inside = true
+    local otherInside = false
+    for i=0,MAX_PLAYERS-1 do
+        local m = gMarioStates[i]
+        local sMario = gPlayerSyncTable[i]
+        if (is_player_active(m) ~= 0) and m.action ~= ACT_SPECTATE and m.marioObj
+        and m.pos.y >= o.oPosY and lateral_dist_between_objects(m.marioObj, o) < 500 then
+            if m.playerIndex == 0 then
+                inside = true
+            elseif sMario.team == nil or sMario.team == 0 or sMario.team ~= gPlayerSyncTable[0].team then
+                otherInside = true
+                break
+            end
+        end
     end
 
     if not inside then
         o.oAnimState = 0
-        o.oTimer = 0
+        o.oBobombBlinkTimer = 0
     else
         o.oAnimState = 1
+        -- earn points faster if we're alone in the circle
+        o.oBobombBlinkTimer = o.oBobombBlinkTimer + ((otherInside and 1) or 2)
 
-        if o.oTimer >= 3 then
+        if o.oBobombBlinkTimer >= 3 then
             local sMario = gPlayerSyncTable[0]
             attempt_raise_score(sMario)
-            o.oTimer = 0
+            o.oBobombBlinkTimer = o.oBobombBlinkTimer - 3
         end
     end
 end
