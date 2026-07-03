@@ -252,7 +252,7 @@ GAME_MODE_DATA = {
                         end
                         gGlobalSyncTable.mingleDoorsOpen = mingleDoorsOpen
                     end
-                    
+
                     gGlobalSyncTable.mingleMaxDoors = mingleMaxDoors
                     network_send_include_self(true, {
                         id = PACKET_MINGLE_CALLOUT,
@@ -262,7 +262,7 @@ GAME_MODE_DATA = {
             end
         end,
         kbStrengthOverrideFunc = function()
-            return gGlobalSyncTable.mignleHurry
+            return (gGlobalSyncTable.mingleHurry and 20)
         end,
         hudRenderFunc = function(screenWidth, screenHeight, sideBarLines, lengthLimit, roundTime, roundTimeLeft,
                                  gameTimeLeft, maxTime)
