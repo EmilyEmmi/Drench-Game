@@ -231,12 +231,12 @@ GAME_MODE_DATA = {
                     end
                     maxPlayerCount = clamp(maxPlayerCount, 1, 4)
                     gGlobalSyncTable.minglePlayerCount = math.random(1, maxPlayerCount)
-                    gGlobalSyncTable.mingleMaxDoors = 8
+                    local mingleMaxDoors = 8
                     -- after 2 rounds, there will be a limited number of doors available
                     if DEBUG_MODE or gGlobalSyncTable.round > 2 then
-                        gGlobalSyncTable.mingleMaxDoors = maxPlayerCount // gGlobalSyncTable.minglePlayerCount
+                        mingleMaxDoors = maxPlayerCount // gGlobalSyncTable.minglePlayerCount
                         if DEBUG_MODE then
-                            gGlobalSyncTable.mingleMaxDoors = 3
+                            mingleMaxDoors = 3
                         end
 
                         local mingleDoorsOpen = 0 -- bitwise value representing which doors are open
@@ -244,7 +244,7 @@ GAME_MODE_DATA = {
                         for i = 0, 7 do
                             table.insert(availableToOpen, i)
                         end
-                        for i = 1, gGlobalSyncTable.mingleMaxDoors do
+                        for i = 1, mingleMaxDoors do
                             local tableIndex = math.random(1, #availableToOpen)
                             local door = availableToOpen[tableIndex]
                             table.remove(availableToOpen, tableIndex)
@@ -252,6 +252,8 @@ GAME_MODE_DATA = {
                         end
                         gGlobalSyncTable.mingleDoorsOpen = mingleDoorsOpen
                     end
+                    
+                    gGlobalSyncTable.mingleMaxDoors = mingleMaxDoors
                     network_send_include_self(true, {
                         id = PACKET_MINGLE_CALLOUT,
                         count = gGlobalSyncTable.minglePlayerCount,

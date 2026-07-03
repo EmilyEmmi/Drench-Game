@@ -6,7 +6,6 @@
     - No points earned when playing All Duel on bizzare's stream (prob also desync)
     - Test Elimination Mode a bit more, especially with dice block battle (SEEMS GOOD)
     - PRIORITY: Players are reviving in certain games now? Seen on RLGL and Lights Out (maybe fixed?)
-    - Toad town has a wall that's hard to see near the 1up house
 - API? (probably not to add more games tho)
     - TODO: Music and SFX support, get team count
     - TODO: Add object IDs
