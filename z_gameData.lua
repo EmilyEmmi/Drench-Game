@@ -96,7 +96,7 @@ GAME_MODE_DATA = {
                 })
             end
         end,
-        nametagFunc = function(index, name)
+        nametagFunc = function(index, pos, name)
             -- disable nametags unless we are spectating
             if index ~= 0 and gMarioStates[0].action ~= ACT_SPECTATE then
                 return ""
@@ -895,7 +895,7 @@ GAME_MODE_DATA = {
                 })
             end
         end,
-        nametagFunc = function(index, name)
+        nametagFunc = function(index, pos, name)
             -- Add chance to kill on the nametag
             local dieMax = 20
             local chance = math.min(gPlayerSyncTable[index].roundScore + 1, dieMax)

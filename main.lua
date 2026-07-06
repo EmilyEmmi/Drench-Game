@@ -1316,8 +1316,8 @@ end
 hook_on_sync_table_change(gPlayerSyncTable[0], "roundScore", "roundScore", dice_block_chance_change)
 
 -- don't display nametags in lights out
-function on_nametags_render(index)
-    local name = network_get_player_text_color_string(index) .. gNetworkPlayers[0].name
+function on_nametags_render(index, pos)
+    local name = network_get_player_text_color_string(index) .. gNetworkPlayers[index].name
     local team = gPlayerSyncTable[index].team or 0
     if team > 0 and team <= #TEAM_DATA then
         if showColorNames then
@@ -1330,7 +1330,7 @@ function on_nametags_render(index)
 
     local gData = GAME_MODE_DATA[gGlobalSyncTable.gameMode]
     if gData and gData.nametagFunc then
-        return gData.nametagFunc(index, name) or name
+        return gData.nametagFunc(index, pos, name) or name
     end
 end
 

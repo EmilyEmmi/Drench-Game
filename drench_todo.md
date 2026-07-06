@@ -6,8 +6,6 @@
     - I did random 8 games and it picked KOTH twice? Look into this (FIXED?)
     - No points earned when playing All Duel on bizzare's stream (prob also desync)
     - Test Elimination Mode a bit more, especially with dice block battle (SEEMS GOOD)
-- API? (probably not to add more games tho)
-    - TODO: Add object IDs
 - Mingle:
     - Are the amount of doors calculated correctly? (No)
 - King Of The Hill:
