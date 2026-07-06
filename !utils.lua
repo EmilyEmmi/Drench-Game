@@ -186,14 +186,14 @@ function djui_hud_print_text_with_color_and_outline(text, x, y, scale, alpha, ou
     local outlineSize = (outlineSize_ or 1) * scale
 
     -- render outline
-    djui_hud_set_color(0, 0, 0, alpha)
+    djui_hud_set_color(0, 0, 0, alpha or 255)
     djui_hud_print_text(text, x  + outlineSize, y, scale);
     djui_hud_print_text(text, x - outlineSize, y, scale);
     djui_hud_print_text(text, x, y + outlineSize, scale);
     djui_hud_print_text(text, x, y - outlineSize, scale);
 
     -- render text
-    djui_hud_set_color(255, 255, 255, alpha)
+    djui_hud_set_color(255, 255, 255, alpha or 255)
     djui_hud_print_text(text, x, y, scale);
 end
 

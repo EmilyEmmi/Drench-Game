@@ -1,4 +1,4 @@
--- name: \\#00ffd5\\Drench Game v1.2 (beta 7.2.2026)
+-- name: \\#00ffd5\\Drench Game v1.2 (beta 7.5.2026)
 -- description: Squid Game in Mario 64!\n\nCommissioned by Drenchy\nInspired by Dani's \"Crab Game\"\n\nProgramming: EmilyEmmi\n\nMaps: biobak, EmilyEmmi, Woissil\n\nSoundtrack: murioz, Awesome Seal Guy (YT)\n\nVoice Acting:\nEspi as Toad\nSqueex as Mingle Callout\nTrashcam as Waluigi\n\nAds: Squeex's Community\n\nSpecial Thanks: Squishy
 -- category: gamemode
 -- incompatible: gamemode
@@ -152,6 +152,11 @@ function load_on_sync()
     if waitRejoinData then
         on_packet_rejoin(waitRejoinData, true)
         waitRejoinData = nil
+    end
+
+    -- check for clean install
+    if network_is_server() and mod_file_exists("sound/lobby.ogg") then
+        djui_chat_message_create("\\#ff5\\NOTICE:\nIt appears you did NOT perform a clean install of Drench Game.\nTo reduce download times, remove the mod and then reinstall the latest version.")
     end
 end
 
