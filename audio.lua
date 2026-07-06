@@ -8,12 +8,12 @@ local musicData = {
     scores = {audio = audio_stream_load("music-scores.ogg"), loop = true, loopStart = 20.029, loopEnd = -0.2},
     mingle = {audio = audio_stream_load("music-mingle.ogg")},
     final = {audio = audio_stream_load("music-final.ogg"), loop = true, loopStart = 36.647, loopEnd = 162.315},
-    slider = {audio = audio_stream_load("music-slider-madness-1.ogg"), loop = true, loopStart = 3.256, loopEnd = -1},
+    slider = {audio = audio_stream_load("music-slider-madness-1.ogg"), loop = true, loopStart = 3.256},
     slider2 = {audio = audio_stream_load("music-slider-madness-2.ogg"), loop = true},
     slider3 = {audio = audio_stream_load("music-slider-madness-3.ogg"), loop = true},
-    sliderCasino = {audio = audio_stream_load("music-slider-casino-1.ogg"), loop = true, loopStart = 2.433, loopEnd = -1},
-    sliderCasino2 = {audio = audio_stream_load("music-slider-casino-2.ogg"), loop = true, loopStart = 2.118, loopEnd = -1},
-    sliderCasino3 = {audio = audio_stream_load("music-slider-casino-3.ogg"), loop = true, loopStart = 1.868, loopEnd = -1},
+    sliderCasino = {audio = audio_stream_load("music-slider-casino-1.ogg"), loop = true, loopStart = 2.433},
+    sliderCasino2 = {audio = audio_stream_load("music-slider-casino-2.ogg"), loop = true, loopStart = 2.118},
+    sliderCasino3 = {audio = audio_stream_load("music-slider-casino-3.ogg"), loop = true, loopStart = 1.868},
     finalOutro = {audio = audio_stream_load("music-final-outro.ogg")},
 }
 
@@ -68,12 +68,15 @@ function update_music(music)
         audio_stream_set_frequency(thisMusic.audio, musicFrequency)
         audio_stream_play(thisMusic.audio, true, 1)
         audio_stream_set_looping(thisMusic.audio, thisMusic.loop or false)
-        if thisMusic.loopEnd then
-            local loopEnd = (thisMusic.loopEnd or -1)
-            if loopEnd ~= -1 then
+        if thisMusic.loopStart or thisMusic.loopEnd then
+            local loopStart = (thisMusic.loopStart or 0) * musicBitrate
+            local loopEnd = thisMusic.loopEnd
+            if loopEnd == nil then
+                loopEnd = -1
+            else
                 loopEnd = loopEnd * musicBitrate
             end
-            audio_stream_set_loop_points(thisMusic.audio, (thisMusic.loopStart or 0) * musicBitrate, loopEnd)
+            audio_stream_set_loop_points(thisMusic.audio, loopStart, loopEnd)
         end
         audio_stream_set_position(thisMusic.audio, 0)
     end
@@ -160,7 +163,7 @@ end
 -- does this even work?
 function test_loop_point()
     local thisMusic = musicData[currentMusic]
-    if (not (thisMusic and thisMusic.loopEnd)) or thisMusic.loopEnd == -1 then
+    if not (thisMusic and thisMusic.loopEnd) then
         djui_chat_message_create("No point to test...")
         return true
     end
@@ -170,4 +173,30 @@ function test_loop_point()
 end
 if DEBUG_MODE then
     hook_chat_command("looptest", "- Test the loop point for this track", test_loop_point)
+end
+
+-- Add a new music track or change an existing one. Check audio.lua for existing tracks.
+---@param name string Name of the music track
+---@param audio ModAudio Audio stream loaded with audio_stream_load
+---@param loop boolean? Set to true to make the track loop (false by default)
+---@param loopStart number? Starting loop point in seconds (start of track by default)
+---@param loopEnd number? Ending loop point in seconds (end of track by default)
+function update_music_track(name, audio, loop, loopStart, loopEnd)
+    if not audio then return end
+    
+    musicData[name] = {
+        audio = audio,
+        loop = loop or false,
+        loopStart = loopStart,
+        loopEnd = loopEnd,
+    }
+end
+
+-- Add a new sound effect or change an existing one. Check audio.lua for existing sfx.
+---@param name string Name of the sfx
+---@param audio ModAudio Audio sample loaded with audio_sample_load
+function update_sfx(name, audio)
+    if not audio then return end
+    
+    soundData[name] = audio
 end

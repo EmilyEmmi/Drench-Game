@@ -1,13 +1,12 @@
 - Misc:
+    - TOP PRIORITY: Players starting dead in Elimination Mode (also elimination calculation is messed up sometimes? Look into this) (TO TEST)
     - Timer options: I think a per round time and number of rounds will be enough. Duels can also have best of setting
     - More Star Steal/Bomb Tag maps?
         - Gamble Gallery: Similar theming to Glass Bridge with dice and card obstacles (also like that old sticker star screenshot)
     - I did random 8 games and it picked KOTH twice? Look into this (FIXED?)
     - No points earned when playing All Duel on bizzare's stream (prob also desync)
     - Test Elimination Mode a bit more, especially with dice block battle (SEEMS GOOD)
-    - PRIORITY: Players are reviving in certain games now? Seen on RLGL and Lights Out (maybe fixed?)
 - API? (probably not to add more games tho)
-    - TODO: Music and SFX support, get team count
     - TODO: Add object IDs
 - Mingle:
     - Are the amount of doors calculated correctly? (No)

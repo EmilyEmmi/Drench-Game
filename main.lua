@@ -108,6 +108,7 @@ rejoin_data = {}
 rejoin_check = {}
 csVersion = (charSelectExists and charSelect.version_get_full().major) or 0
 disableMusic = 0
+showColorNames = false
 
 -- default values for all players
 for i=0,MAX_PLAYERS-1 do
@@ -178,45 +179,9 @@ function sync_setup()
     if gGlobalSyncTable.gameState == GAME_STATE_LOBBY or (not network_is_server()) then return end
 
     local np = gNetworkPlayers[0]
-    if np.currLevelNum == LEVEL_GLASS then
-        local toEliminate = calculate_players_to_eliminate((not gGlobalSyncTable.eliminationMode), true)
-
-        -- assign each pane its break status
-        local glass = obj_get_first_with_behavior_id_and_field_s32(id_bhvGlass, 0x2F, 0)
-        -- the amount of panes can't exceed half we intend to eliminate plus 2, to ensure elimination games don't end really easily
-        local totalPanes = clamp(math.ceil(toEliminate / 2) + 2, 3, 10)
-        local row = 0
-        while glass do
-            if row >= totalPanes then
-                glass.oBobombFuseTimer = 2
-                local otherGlass = obj_get_next_with_same_behavior_id_and_field_s32(glass, 0x2F, row)
-                if otherGlass then
-                    otherGlass.oBobombFuseTimer = 2
-                end
-                network_send_object(glass, true)
-                if otherGlass then network_send_object(otherGlass, true) end
-            else
-                local otherGlass = obj_get_next_with_same_behavior_id_and_field_s32(glass, 0x2F, row)
-                local glassBreak = math.random(0, 1)
-                if glassBreak == 0 then
-                    glass.oBobombFuseTimer = 0
-                    if otherGlass then
-                        otherGlass.oBobombFuseTimer = 1
-                    end
-                else
-                    glass.oBobombFuseTimer = 1
-                    if otherGlass then
-                        otherGlass.oBobombFuseTimer = 0
-                    end
-                end
-                if DEBUG_MODE then log_to_console(tostring(row) .. ": " .. tostring(glassBreak)) end
-                network_send_object(glass, true)
-                if otherGlass then network_send_object(otherGlass, true) end
-            end
-
-            row = row + 1
-            glass = obj_get_first_with_behavior_id_and_field_s32(id_bhvGlass, 0x2F, row)
-        end
+    local levelSetup = LEVEL_SYNC_SETUP[np.currLevelNum]
+    if levelSetup then
+        levelSetup()
     end
 end
 
@@ -466,7 +431,7 @@ function mario_update(m)
             highlight = true
             desc = "Ready!"
         else
-            desc = "Waiting..."
+            desc = "Waiting.."
         end
     elseif gGlobalSyncTable.gameState == GAME_STATE_GAME_END then
         if gGlobalSyncTable.eliminationMode then
@@ -529,6 +494,18 @@ function mario_update(m)
                 color = {r = 255, g = 80, b = 80}
             end
         else
+            -- shorten some words
+            if showColorNames then
+                if desc == "Finished" then
+                    desc = "Done"
+                elseif desc == "Waiting..." then
+                    desc = "Idle"
+                elseif desc == "Ready!" then
+                    desc = "OK!"
+                end
+                desc = TEAM_DATA[sMario.team][4] .. ": " .. desc
+            end
+
             color = TEAM_DATA[sMario.team][1]
             if not (highlight or yellow) then
                 alpha = 100
@@ -553,7 +530,7 @@ function mario_update(m)
         sMario.points = 0
         sMario.roundScore = 0
         sMario.earnedPoints = 0
-        sMario.eliminated = false
+        sMario.eliminated = (not firstLoaded)
         sMario.roundEliminated = 0
         sMario.holdingBomb = false
         if sMario.spectator then
@@ -593,7 +570,7 @@ function mario_update(m)
         if gGlobalSyncTable.gameState == GAME_STATE_RULES then
             if gGlobalSyncTable.gameMode == GAME_MODE_DUEL then
                 sMario.eliminated = (not sMario.validForDuel)
-            elseif not gGlobalSyncTable.eliminationMode then
+            elseif gGlobalSyncTable.miniGameNum == 1 or not gGlobalSyncTable.eliminationMode then
                 sMario.eliminated = sMario.spectator or false
             end
             sMario.earnedPoints = 0
@@ -1335,11 +1312,20 @@ hook_on_sync_table_change(gPlayerSyncTable[0], "roundScore", "roundScore", dice_
 
 -- don't display nametags in lights out
 function on_nametags_render(index)
-    if gGlobalSyncTable.gameState ~= GAME_STATE_ACTIVE then return end
+    local name = network_get_player_text_color_string(index) .. gNetworkPlayers[0].name
+    local team = gPlayerSyncTable[index].team or 0
+    if team > 0 and team <= #TEAM_DATA then
+        if showColorNames then
+            name = "("..TEAM_DATA[team][4]..") "..name
+        end
+        name = TEAM_DATA[team][3]:sub(1, 9) .. get_uncolored_string(name)
+    end
+    
+    if gGlobalSyncTable.gameState ~= GAME_STATE_ACTIVE then return name end
 
     local gData = GAME_MODE_DATA[gGlobalSyncTable.gameMode]
     if gData and gData.nametagFunc then
-        return gData.nametagFunc(index)
+        return gData.nametagFunc(index, name) or name
     end
 end
 

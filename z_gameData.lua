@@ -96,7 +96,7 @@ GAME_MODE_DATA = {
                 })
             end
         end,
-        nametagFunc = function(index)
+        nametagFunc = function(index, name)
             -- disable nametags unless we are spectating
             if index ~= 0 and gMarioStates[0].action ~= ACT_SPECTATE then
                 return ""
@@ -895,13 +895,12 @@ GAME_MODE_DATA = {
                 })
             end
         end,
-        nametagFunc = function(index)
+        nametagFunc = function(index, name)
             -- Add chance to kill on the nametag
             local dieMax = 20
             local chance = math.min(gPlayerSyncTable[index].roundScore + 1, dieMax)
             local percent = math.round(chance / dieMax * 100)
-            local name = remove_color(gNetworkPlayers[index].name)
-            return name .. " (" .. percent .. "%)"
+            return name .. "\\#ff5\\ (" .. percent .. "%)"
         end,
         hudRenderFunc = function(screenWidth, screenHeight, sideBarLines, lengthLimit)
             local dieMax = 20
@@ -982,6 +981,49 @@ LEVEL_SPAWN_DATA = {
     },
 }
 
+LEVEL_SYNC_SETUP = {
+    [LEVEL_GLASS] = function()
+        local toEliminate = calculate_players_to_eliminate((not gGlobalSyncTable.eliminationMode), true)
+
+        -- assign each pane its break status
+        local glass = obj_get_first_with_behavior_id_and_field_s32(id_bhvGlass, 0x2F, 0)
+        -- the amount of panes can't exceed half we intend to eliminate plus 2, to ensure elimination games don't end really easily
+        local totalPanes = math.max(math.ceil(toEliminate / 2) + 2, 3)
+        local row = 0
+        while glass do
+            if row >= totalPanes then
+                glass.oBobombFuseTimer = 2
+                local otherGlass = obj_get_next_with_same_behavior_id_and_field_s32(glass, 0x2F, row)
+                if otherGlass then
+                    otherGlass.oBobombFuseTimer = 2
+                end
+                network_send_object(glass, true)
+                if otherGlass then network_send_object(otherGlass, true) end
+            else
+                local otherGlass = obj_get_next_with_same_behavior_id_and_field_s32(glass, 0x2F, row)
+                local glassBreak = math.random(0, 1)
+                if glassBreak == 0 then
+                    glass.oBobombFuseTimer = 0
+                    if otherGlass then
+                        otherGlass.oBobombFuseTimer = 1
+                    end
+                else
+                    glass.oBobombFuseTimer = 1
+                    if otherGlass then
+                        otherGlass.oBobombFuseTimer = 0
+                    end
+                end
+                if DEBUG_MODE then log_to_console(tostring(row) .. ": " .. tostring(glassBreak)) end
+                network_send_object(glass, true)
+                if otherGlass then network_send_object(otherGlass, true) end
+            end
+
+            row = row + 1
+            glass = obj_get_first_with_behavior_id_and_field_s32(id_bhvGlass, 0x2F, row)
+        end
+    end,
+}
+
 -- hud for between duel state, ported from the original Duels mod (with modifications to support more players)
 function duel_hud()
     local screenWidth, screenHeight = djui_hud_get_screen_width(), djui_hud_get_screen_height()
@@ -1044,7 +1086,7 @@ function duel_hud()
         if i % 2 == 1 then
             x = x + 10
         else
-            x = x + width - (djui_hud_measure_text(remove_color(name)) * scale) - 10
+            x = x + width - (djui_hud_measure_text(get_uncolored_string(name)) * scale) - 10
         end
         djui_hud_print_text_with_color_and_outline(name, x, y + 2, scale, 255, 2)
         y = y + 35 * scale

@@ -117,7 +117,7 @@ function add_line_to_table(thisTable, line, lengthLimit)
     end
 end
 
--- removes color string
+-- removes color string (only used for the sidebar now)
 function remove_color(text, get_color)
     local start = text:find("\\")
     local next = 1
@@ -144,40 +144,12 @@ end
 
 -- stops color text at the limit selected
 function cap_color_text(text, limit)
-    local slash = false
-    local capped_text = ""
-    local chars = 0
-    local luaPoint = 0
-    while luaPoint < text:len() do
-        luaPoint = luaPoint + 1
-        local char = text:sub(luaPoint, luaPoint)
-
-        -- special characters are treated as multiple by lua: not doing this WILL cause game crashes!
-        if string.byte(char) >= 128 then
-            local foundEndChar = true
-            while string.byte(char, char:len()) >= 128 do
-                if luaPoint >= text:len() or char:len() >= 3 then -- 3 is the max, because the japanese characters are 3 lua characters long
-                    foundEndChar = false
-                    break
-                end
-                luaPoint = luaPoint + 1
-                char = char .. text:sub(luaPoint, luaPoint)
-            end
-            if foundEndChar then
-                luaPoint = luaPoint - 1
-                char = char:sub(1, -2)
-            end
-        end
-
-        if char == "\\" then
-            slash = not slash
-        elseif not slash then
-            chars = chars + 1
-            if chars > limit then break end
-        end
-        capped_text = capped_text .. char
-    end
-    return capped_text
+  local length = utf8.len(get_uncolored_string(text))
+  while length ~= nil and length > limit do
+    text = text:sub(1, utf8.offset(text, length) - 1)
+    length = utf8.len(get_uncolored_string(text))
+  end
+  return text
 end
 
 -- converts hex string to RGB values
@@ -206,52 +178,23 @@ end
 -- prints text on the screen... with color!
 function djui_hud_print_text_with_color(text, x, y, scale, alpha)
     djui_hud_set_color(255, 255, 255, alpha or 255)
-    local space = 0
-    local color = ""
-    local render = ""
-    text, color, render = remove_color(text, true)
-    while render do
-        local r, g, b, a = convert_color(color)
-        djui_hud_print_text(render, x + space, y, scale);
-        if r then djui_hud_set_color(r, g, b, alpha or a) end
-        space = space + djui_hud_measure_text(render) * scale
-        text, color, render = remove_color(text, true)
-    end
-    djui_hud_print_text(text, x + space, y, scale);
+    djui_hud_print_text(text, x, y, scale);
 end
 
 -- prints text on the screen... with color! ... and an outline!
 function djui_hud_print_text_with_color_and_outline(text, x, y, scale, alpha, outlineSize_)
-    djui_hud_set_color(255, 255, 255, alpha or 255)
-    local space = 0
-    local color = ""
-    local render = ""
     local outlineSize = (outlineSize_ or 1) * scale
-    text, color, render = remove_color(text, true)
-    while render do
-        local r, g, b, a = convert_color(color)
-        if render ~= "" then
-            local currColor = djui_hud_get_color()
-            djui_hud_set_color(0, 0, 0, currColor.a)
-            djui_hud_print_text(render, x + space + outlineSize, y, scale);
-            djui_hud_print_text(render, x + space - outlineSize, y, scale);
-            djui_hud_print_text(render, x + space, y + outlineSize, scale);
-            djui_hud_print_text(render, x + space, y - outlineSize, scale);
-            djui_hud_set_color(currColor.r, currColor.g, currColor.b, currColor.a)
-            djui_hud_print_text(render, x + space, y, scale);
-        end
-        if r then djui_hud_set_color(r, g, b, alpha or a) end
-        space = space + djui_hud_measure_text(render) * scale
-        text, color, render = remove_color(text, true)
-    end
-    local currColor = djui_hud_get_color()
-    djui_hud_set_color(0, 0, 0, currColor.a)
-    djui_hud_print_text(text, x + space + outlineSize, y, scale);
-    djui_hud_print_text(text, x + space - outlineSize, y, scale);
-    djui_hud_print_text(text, x + space, y + outlineSize, scale);
-    djui_hud_print_text(text, x + space, y - outlineSize, scale);
-    djui_hud_set_color(currColor.r, currColor.g, currColor.b, currColor.a)
-    djui_hud_print_text(text, x + space, y, scale);
+
+    -- render outline
+    djui_hud_set_color(0, 0, 0, alpha)
+    djui_hud_print_text(text, x  + outlineSize, y, scale);
+    djui_hud_print_text(text, x - outlineSize, y, scale);
+    djui_hud_print_text(text, x, y + outlineSize, scale);
+    djui_hud_print_text(text, x, y - outlineSize, scale);
+
+    -- render text
+    djui_hud_set_color(255, 255, 255, alpha)
+    djui_hud_print_text(text, x, y, scale);
 end
 
 -- converts time in frames into a string

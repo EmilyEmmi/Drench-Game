@@ -156,8 +156,8 @@ function on_hud_render()
             end
             local text = string.format(scoreText .. color .. "%.01f", score/10)
             local text2 = string.format("Safe score: %.01f", safeScore/10)
-            local width = djui_hud_measure_text(remove_color(text)) * scale
-            local width2 = djui_hud_measure_text(remove_color(text2)) * scale
+            local width = djui_hud_measure_text(text) * scale
+            local width2 = djui_hud_measure_text(text2) * scale
             local maxWidth = math.max(width, width2)
             local x = (screenWidth - maxWidth) / 2
             local y = 10 * scale
@@ -216,7 +216,7 @@ function on_hud_render()
                 text = network_get_player_text_color_string(np.localIndex) .. np.name
             end
             text = "< " .. text .. "\\#ffffff\\ >"
-            local width = djui_hud_measure_text(remove_color(text)) * scale
+            local width = djui_hud_measure_text(text) * scale
             local x = (screenWidth - width) / 2
             local y = screenHeight - 40 * scale
             djui_hud_set_color(0, 0, 0, 100)
@@ -261,7 +261,7 @@ function on_hud_render()
         end
 
         if #text ~= 0 then
-            local width = djui_hud_measure_text(remove_color(text)) * scale
+            local width = djui_hud_measure_text(text) * scale
             local x = (screenWidth - width) / 2
             local y = screenHeight / 2 - 16 * scale
             djui_hud_set_color(0, 0, 0, 100)
@@ -384,7 +384,7 @@ function on_hud_render()
             else
                 scoreText = "\\#ff2828\\Dead"
             end
-            x = (screenWidth + width) / 2 - (djui_hud_measure_text(remove_color(scoreText)) + 20) * scale
+            x = (screenWidth + width) / 2 - (djui_hud_measure_text(scoreText) + 20) * scale
             djui_hud_print_text_with_color_and_outline(scoreText, x, renderY, scale, 255, 2)
 
             if (not scoreMenuFinal) and earned > 0 then
@@ -464,7 +464,7 @@ function on_hud_render()
         local scale = 0.5
         local y = 20
         for i, line in ipairs(lines) do
-            local width = djui_hud_measure_text(remove_color(line)) * scale
+            local width = djui_hud_measure_text(line) * scale
             local x = (screenWidth - width) / 2
             djui_hud_set_color(0, 0, 0, 100)
             djui_hud_render_rect(x - 10 * scale, y - 10 * scale, width + 20 * scale, 52 * scale)
@@ -759,6 +759,20 @@ menu_data = {
             maxNum = 2,
             nameRef = {"\\#50ff50\\On", "\\#ff5050\\Off", "Mingle Only"},
             save = "disableMusic",
+            localSave = true,
+        },
+        {
+            "Colorblind Mode",
+            function(x)
+                showColorNames = (x ~= 0)
+            end,
+            false,
+            runOnChange = true,
+            currNum = 0,
+            minNum = 0,
+            maxNum = 1,
+            nameRef = {"\\#ff5050\\Off", "\\#50ff50\\On"},
+            save = "showColorNames",
             localSave = true,
         },
         {
@@ -1061,7 +1075,7 @@ function render_menu()
             end
             text = text .. "\\#5050ff\\  < " .. optionText .. " \\#5050ff\\>"
         end
-        local width = djui_hud_measure_text(remove_color(text)) * scale
+        local width = djui_hud_measure_text(text) * scale
 
         x = (screenWidth - width) * 0.5
 

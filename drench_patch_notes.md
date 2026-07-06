@@ -7,6 +7,8 @@ v1.2 (WIP)
 - New Features:
     - Added indicators for which players moved on the leaderboard (like in Mario Kart)
     - Added a Music toggle, usable by all players (The setting "Mingle Only" only plays the Mingle track)
+    - Added the "Colorblind Mode" toggle, which lists the team name in Nametags and the player list.
+        - This does NOT affect the doors in the Mingle game, unfortunately.
     - Added the option to include All Player Duel in random game selection
 - Gameplay Changes:
     - All minigames have been shortened. In a full lobby, most games will last 3 minutes at most, with these exceptions:
@@ -35,10 +37,10 @@ v1.2 (WIP)
         - Toad kills players 7 frames after fully turning around instead of only 5.
     - Star Steal and King Of The Hill:
         - (Star Steal only): The first round is now 1 minute and 30 seconds instead of 2 minutes.
+        - (King Of The Hill only): You now earn twice as many points if no other opponents are in the circle.
         - Points are now counted in tenths of a second instead of whole seconds.
         - You can no longer be more than 20 points ahead. Your score will stop increasing at that point.
         - If there's two players left and one of the players is too far behind to possibly win, the game will end immediately.
-        - (King Of The Hill only): You now earn twice as many points if no other opponents are in the circle.
     - Bomb Tag:
         - Players holding a bomb now move 10% faster.
         - Instead of between 1-2 bombs being assigned at random, bombs are assigned based on player count.
@@ -53,6 +55,7 @@ v1.2 (WIP)
     - Duel:
         - Team games are now Best of 3 instead of Best of 5.
         - Final Duel can now be selected with 2 teams, but ONLY if Elimination Mode is enabled.
+        - If you get one point, you'll earn 10 points in the overall game.
     - Koopa Keep:
         - Adjusted the collision on the spiked spire to prevent unexpected steep jumps.
         - A spring was added near the spiked spire to make camping there less powerful.
@@ -60,6 +63,7 @@ v1.2 (WIP)
     - The sidebar now displays "Elimination Mode" when... playing in Elimination Mode.
     - When playing with uneven teams, points are adjusted AFTER the "[Player] wins!" message to make the message reflect the actual winner(s).
     - When spectating a player, the top of the screen will now display their score and the safe score in KOTH and Star Steal.
+    - Nametags in Team Mode are now always colored after the team they're on
     - Red Light, Green Light:
         - Added a visual indicator for Toad's eyesight.
     - Mingle:
@@ -86,16 +90,16 @@ v1.2 (WIP)
     - Maybe fixed player spawn positions sometimes not being synced between players
     - More desyncs will be corrected automatically; you can also say "desync" in chat to attempt an automatic fix
     - Fixed some collision issues on Toad Town and Koopa Keep
+    - Fixed a miscolored wall near the 1-Up House in Toad Town
     - Fixed Random game selection sometimes skipping certain modes
     - Fixed occassional popups saying "[Player] died"
     - Glass Bridge:
         - Fixed a bug where spectating a falling player after reaching the end could cause you to lose as well
+        - Fixed being able to earn points after the game has already ended
     - Mingle:
         - Fixed being able to ledge grab the doors to avoid dying during the carousel phase.
     - Duel:
         - Fixed points being distributed based on the amount of teammates alive during the final round
-    - Toad Town:
-        - Fixed a miscolored wall near the 1-Up House
 - Backend Changes
     - The sound folder was reduced by over 20 MB!!!
         - This was done by compressing/trimming the gigantic audio files (THANK YOU SQUISHY!!!)

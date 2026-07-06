@@ -218,6 +218,7 @@ function glass_loop(o)
 
     if o.oBobombFuseTimer ~= 0 then
         load_object_collision_model()
+        if gGlobalSyncTable.gameState ~= GAME_STATE_ACTIVE then return end
         local m0 = gMarioStates[0]
         local sMario0 = gPlayerSyncTable[0]
         if sMario0.earnedPoints == nil or sMario0.roundScore == nil then return end
@@ -282,6 +283,7 @@ end
 function gb_thwomp_loop(o)
     if o.oAction == 0 then
         cur_obj_disable_rendering()
+        if gGlobalSyncTable.gameState ~= GAME_STATE_ACTIVE then return end
         local m = gMarioStates[o.oBehParams]
         if (not m) or is_player_active(m) == 0 or m.action == ACT_SPECTATE
         or m.action == ACT_GB_FALL or m.health <= 0xFF then
@@ -314,12 +316,14 @@ function gb_thwomp_loop(o)
         o.oVelY = -150
 
         -- eliminate player
-        local m = gMarioStates[o.oBehParams]
-        local sMario = gPlayerSyncTable[m.playerIndex]
-        if m and is_player_active(m) ~= 0 and m.action ~= ACT_SPECTATE and (not sMario.eliminated) then
-            o.oPosX, o.oPosZ = m.pos.x, m.pos.z
-            if m.playerIndex == 0 and m.pos.y > o.oPosY then
-                eliminate_mario(m)
+        if gGlobalSyncTable.gameState == GAME_STATE_ACTIVE then
+            local m = gMarioStates[o.oBehParams]
+            local sMario = gPlayerSyncTable[m.playerIndex]
+            if m and is_player_active(m) ~= 0 and m.action ~= ACT_SPECTATE and (not sMario.eliminated) then
+                o.oPosX, o.oPosZ = m.pos.x, m.pos.z
+                if m.playerIndex == 0 and m.pos.y > o.oPosY then
+                    eliminate_mario(m)
+                end
             end
         end
 
@@ -346,12 +350,14 @@ function gb_thwomp_loop(o)
         end
 
         -- eliminate player
-        local m = gMarioStates[o.oBehParams]
-        local sMario = gPlayerSyncTable[m.playerIndex]
-        if m and is_player_active(m) ~= 0 and m.action ~= ACT_SPECTATE and (not sMario.eliminated) then
-            o.oPosX, o.oPosZ = m.pos.x, m.pos.z
-            if m.playerIndex == 0 then
-                eliminate_mario(m)
+        if gGlobalSyncTable.gameState == GAME_STATE_ACTIVE then
+            local m = gMarioStates[o.oBehParams]
+            local sMario = gPlayerSyncTable[m.playerIndex]
+            if m and is_player_active(m) ~= 0 and m.action ~= ACT_SPECTATE and (not sMario.eliminated) then
+                o.oPosX, o.oPosZ = m.pos.x, m.pos.z
+                if m.playerIndex == 0 then
+                    eliminate_mario(m)
+                end
             end
         end
 
