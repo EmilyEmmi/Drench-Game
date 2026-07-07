@@ -146,7 +146,7 @@ end
 function cap_color_text(text, limit)
   local length = utf8.len(get_uncolored_string(text))
   while length ~= nil and length > limit do
-    text = text:sub(1, utf8.offset(text, length) - 1)
+    text = text:sub(1, utf8.len(text) - 1)
     length = utf8.len(get_uncolored_string(text))
   end
   return text

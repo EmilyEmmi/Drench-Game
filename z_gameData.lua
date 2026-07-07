@@ -897,6 +897,7 @@ GAME_MODE_DATA = {
         end,
         nametagFunc = function(index, pos, name)
             -- Add chance to kill on the nametag
+            name = cap_color_text(name, 25)
             local dieMax = 20
             local chance = math.min(gPlayerSyncTable[index].roundScore + 1, dieMax)
             local percent = math.round(chance / dieMax * 100)

@@ -596,7 +596,8 @@ function steal_star_loop(o)
     if o.oAction == 0 then
         o.oPosX, o.oPosY, o.oPosZ = o.oHomeX, o.oHomeY, o.oHomeZ
         local m = nearest_mario_state_to_object(o)
-        if network_is_server() and m and dist_between_objects(m.marioObj, o) <= 200 then
+        if network_is_server() and gGlobalSyncTable.gameState ~= GAME_STATE_RULES
+        and m and dist_between_objects(m.marioObj, o) <= 200 then
             gGlobalSyncTable.starStealOwner = network_global_index_from_local(m.playerIndex)
             cur_obj_change_action(1)
             network_send_object(o, true)

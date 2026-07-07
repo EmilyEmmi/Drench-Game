@@ -1332,6 +1332,7 @@ function on_nametags_render(index, pos)
     if gData and gData.nametagFunc then
         return gData.nametagFunc(index, pos, name) or name
     end
+    return name
 end
 
 hook_event(HOOK_ON_NAMETAGS_RENDER, on_nametags_render)
