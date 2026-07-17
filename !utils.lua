@@ -143,11 +143,18 @@ function remove_color(text, get_color)
 end
 
 -- stops color text at the limit selected
-function cap_color_text(text, limit)
+function cap_color_text(text, limit, charLimit)
   local length = utf8.len(get_uncolored_string(text))
   while length ~= nil and length > limit do
     text = text:sub(1, utf8.len(text) - 1)
     length = utf8.len(get_uncolored_string(text))
+  end
+  if charLimit then
+    length = #text
+    while length ~= nil and length > charLimit do
+        text = text:sub(1, utf8.len(text) - 1)
+        length = #text
+    end
   end
   return text
 end
@@ -250,8 +257,11 @@ function calculate_players_to_eliminate(ignoreEliminated, forceCalc)
         local eliminateThisGame = wantToEliminate // minigamesLeft -- meaning we want to eliminate this many more players (rounding down)
 
         -- divide goal by the rounds left to get the amount to eliminate this round (rounding down)
-        -- note that the minimum is 1
         maxToEliminate = eliminateThisGame // roundsLeft
+        -- always eliminate at least one person if we have more rounds left
+        if maxToEliminate <= 0 and eliminateThisGame > 0 then
+            maxToEliminate = 1
+        end
     else
         -- progressively eliminate more players over time, always ending with a 1v1
         -- ex: in a 5 round game with 16 players, the elimination numbers will be: 5, 4, 3, 2, 1

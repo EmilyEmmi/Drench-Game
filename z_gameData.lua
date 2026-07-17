@@ -12,6 +12,7 @@ GAME_MODE_DATA = {
         level = LEVEL_GLASS,
         interact = PLAYER_INTERACTIONS_SOLID,
         kbStrength = 5,
+        fasterActions = true,
         music = "dire",
         marioUpdateFunc = function(m) -- switch to custom falling action
             if m.action & ACT_GROUP_MASK ~= ACT_GROUP_CUTSCENE and m.action ~= ACT_GB_FALL and m.action ~= ACT_SPECTATE
@@ -54,7 +55,7 @@ GAME_MODE_DATA = {
         "This is a simple game: Stay alive. You'll earn 10 points for surviving this game. You could attack other players for some extra points... but wouldn't that be risky?",
         descElim =
         "This is a simple game: Stay alive. There's nothing to hurt you here unless you start attacking each other or something. But why would you do that?",
-        maxTime = 3 * 60 * 30, -- 3 minutes
+        maxTime = 2 * 60 * 30, -- 2 minutes
         level = LEVEL_LIGHTS_OUT,
         interact = PLAYER_INTERACTIONS_PVP,
         music = "dire",
@@ -112,6 +113,7 @@ GAME_MODE_DATA = {
         music = "",            -- no music
         interact = PLAYER_INTERACTIONS_SOLID,
         kbStrength = 10,
+        fasterActions = true,
         nerfSonic = true,
         victoryFunc = function(m)
             return (m.floor and m.floor.type == SURFACE_TIMER_END)
@@ -295,6 +297,7 @@ GAME_MODE_DATA = {
         doEliminationPoints = true,
         mercyRuleScale = 10,          -- Max points we can gain in 1 second, used to calculate mercy rule
         nerfSonic = true,
+        fasterActions = true,
         marioUpdateFunc = function(m) -- earn points when holding star, and give to nearest opponent on hit
             local sMario = gPlayerSyncTable[m.playerIndex]
             local gIndex = network_global_index_from_local(m.playerIndex)
@@ -370,6 +373,7 @@ GAME_MODE_DATA = {
         level = MISC_GAME_MAPS, -- selects toad town or koopa keep
         interact = PLAYER_INTERACTIONS_PVP,            -- so invulnerability frames exist
         kbStrength = 10,
+        fasterActions = true,
         roundTime = 30 * 30,                           -- 30 seconds
         maxRounds = 6,
         nerfSonic = true,
@@ -491,6 +495,7 @@ GAME_MODE_DATA = {
         level = LEVEL_KOTH,
         interact = PLAYER_INTERACTIONS_PVP, -- so invulnerability frames exist
         kbStrength = 25,
+        fasterActions = true,
         firstRoundTime = 60 * 30,           -- 1 minute
         roundTime = 30 * 30,                -- 30 seconds
         maxRounds = 5,
@@ -764,6 +769,9 @@ GAME_MODE_DATA = {
         end,
         descFunc = function(index)
             local sMario = gPlayerSyncTable[index]
+            if not sMario.validForDuel then
+                return " ", false
+            end
             return tostring(sMario.roundScore or 0), (not sMario.eliminated) -- desc, highlight
         end,
         onPvpFunc = function(attacker, victim, interaction)
@@ -840,6 +848,7 @@ GAME_MODE_DATA = {
         level = MISC_GAME_MAPS, -- selects toad town or koopa keep
         interact = PLAYER_INTERACTIONS_PVP,            -- so invulnerability frames exist
         kbStrength = 25,
+        fasterActions = true,
         doPlacementPoints = true,
         music = "sliderCasino",
         nerfSonic = true,
@@ -897,7 +906,7 @@ GAME_MODE_DATA = {
         end,
         nametagFunc = function(index, pos, name)
             -- Add chance to kill on the nametag
-            name = cap_color_text(name, 25)
+            name = cap_color_text(name, 25, 49)
             local dieMax = 20
             local chance = math.min(gPlayerSyncTable[index].roundScore + 1, dieMax)
             local percent = math.round(chance / dieMax * 100)

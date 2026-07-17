@@ -147,6 +147,12 @@ drenchGameAPI.drench_get_level_spawn_data = function(level)
     return LEVEL_SPAWN_DATA[level]
 end
 
+-- Returns if Colorblind Mode is active
+---@return boolean debug True if colorblind mode
+drenchGameAPI.drench_is_colorblind_mode = function()
+    return showColorNames
+end
+
 -- Returns if Debug Mode is active (when Cheats is enabled)
 ---@return boolean debug True if debug mode is active
 drenchGameAPI.drench_is_debug_mode = function()

@@ -1,5 +1,4 @@
 - Misc:
-    - TOP PRIORITY: Players starting dead in Elimination Mode (also elimination calculation is messed up sometimes? Look into this) (TO TEST)
     - Timer options: I think a per round time and number of rounds will be enough. Duels can also have best of setting
     - More Star Steal/Bomb Tag maps?
         - Gamble Gallery: Similar theming to Glass Bridge with dice and card obstacles (also like that old sticker star screenshot)

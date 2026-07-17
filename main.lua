@@ -1,4 +1,4 @@
--- name: \\#00ffd5\\Drench Game v1.2 (beta 7.13.2026)
+-- name: \\#00ffd5\\Drench Game v1.2 (beta 7.17.2026)
 -- description: Squid Game in Mario 64!\n\nCommissioned by Drenchy\nInspired by Dani's \"Crab Game\"\n\nProgramming: EmilyEmmi\n\nMaps: biobak, EmilyEmmi, Woissil\n\nSoundtrack: murioz, Awesome Seal Guy (YT)\n\nVoice Acting:\nEspi as Toad\nSqueex as Mingle Callout\nTrashcam as Waluigi\n\nAds: Squeex's Community\n\nSpecial Thanks: Squishy
 -- category: gamemode
 -- incompatible: gamemode
@@ -237,6 +237,29 @@ end
 
 hook_event(HOOK_BEFORE_MARIO_UPDATE, before_mario_update)
 
+-- speeds up these actions; increases by this amount each frame
+-- -1 is a special case for the stuck actions
+-- Ported from MarioHunt
+local faster_actions = {
+  [ACT_GROUND_BONK] = 1,
+  [ACT_FORWARD_GROUND_KB] = 1,
+  [ACT_BACKWARD_GROUND_KB] = 1,
+  [ACT_DIVE_PICKING_UP] = 3,
+  [ACT_PICKING_UP_BOWSER] = 1,
+  [ACT_HARD_FORWARD_GROUND_KB] = 1,
+  -- [ACT_SOFT_FORWARD_GROUND_KB] = 1,
+  [ACT_HARD_BACKWARD_GROUND_KB] = 1,
+  -- [ACT_SOFT_BACKWARD_GROUND_KB] = 1,
+  [ACT_BACKWARD_WATER_KB] = 2,
+  [ACT_FORWARD_WATER_KB] = 2,
+  -- [ACT_RELEASING_BOWSER] = 2,
+  [ACT_HEAVY_THROW] = 1,
+  [ACT_STOMACH_SLIDE_STOP] = 1,
+  [ACT_BUTT_STUCK_IN_GROUND] = -1,
+  [ACT_FEET_STUCK_IN_GROUND] = -1,
+  [ACT_HEAD_STUCK_IN_GROUND] = -1,
+}
+
 local storedSafeScore = 0
 local marioPoleTime = {}
 local marioBounceTimer = {}
@@ -414,9 +437,26 @@ function mario_update(m)
         if gData.marioUpdateFunc then
             gData.marioUpdateFunc(m)
         end
+
+        -- disable fall damage
         if not gData.fallDamage then
-            m.peakHeight = m.pos.y -- disable fall damage
+            m.peakHeight = m.pos.y
         end
+
+        if gData.fasterActions and faster_actions[m.action] then
+            -- faster actions, ported from MarioHunt
+            if faster_actions[m.action] == -1 then
+                if m.actionTimer >= 5 and m.actionTimer <= 7 then
+                    m.actionTimer = m.actionTimer + 1
+                else
+                    set_anim_to_frame(m, m.marioObj.header.gfx.animInfo.animFrame + 3)
+                end
+            elseif m.action ~= ACT_HARD_FORWARD_GROUND_KB or m.action ~= ACT_HARD_BACKWARD_GROUND_KB or (m.health - 0x40 * m.hurtCounter) > 0xFF then
+                -- new animation system seems to make this not update immediately or something? add an additional 1 so this does something
+                set_anim_to_frame(m, m.marioObj.header.gfx.animInfo.animFrame + faster_actions[m.action] + 1)
+            end
+        end
+
         if m.playerIndex == 0 and sMario.spectator and not sMario.eliminated then
             eliminate_mario(m)
         end
@@ -485,6 +525,7 @@ function mario_update(m)
             desc = "Alive"
         end
     end
+    
     if desc ~= "" then
         local color = {}
         local alpha = 255
@@ -499,8 +540,10 @@ function mario_update(m)
                 color = {r = 255, g = 80, b = 80}
             end
         else
-            -- shorten some words
-            if showColorNames then
+            if desc == " " then
+                desc = TEAM_DATA[sMario.team][4]
+            elseif showColorNames then
+                -- shorten some words
                 if desc == "Finished" then
                     desc = "Done"
                 elseif desc == "Waiting..." then
@@ -1317,7 +1360,7 @@ hook_on_sync_table_change(gPlayerSyncTable[0], "roundScore", "roundScore", dice_
 
 -- don't display nametags in lights out
 function on_nametags_render(index, pos)
-    local name = network_get_player_text_color_string(index) .. gNetworkPlayers[index].name
+    local name = gNetworkPlayers[index].name
     local team = gPlayerSyncTable[index].team or 0
     if team > 0 and team <= #TEAM_DATA then
         if showColorNames then

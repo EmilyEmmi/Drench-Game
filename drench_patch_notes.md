@@ -10,11 +10,14 @@ v1.2 (WIP)
     - Added the "Colorblind Mode" toggle, which lists the team name in Nametags and the player list.
         - This does NOT affect the doors in the Mingle game, unfortunately.
     - Added the option to include All Player Duel in random game selection
+    - API! You can implement new maps, music, and even new games. See the example mod included on the mod site.
 - Gameplay Changes:
     - All minigames have been shortened. In a full lobby, most games will last 3 minutes at most, with these exceptions:
         - Red Light, Green Light: Max time is now 2 minutes instead of 3 minutes.
         - Star Steal: The first round is 1:30, so the minigame will last 3:30 at most with 5 rounds.
+        - Lights Out: Max time is now 2 minutes instead of 3 minutes.
         - Duel: A tiebreaker round occurs after 5 rounds. Therefore, an all-player duel will last ~7 minutes at most rather than going on indefinitely.
+    - Faster actions (from MarioHunt) was added to all games except Mingle, Lights Out, and Duel
     - Elimination logic for round-based games (Bomb Tag, Star Steal, and King Of The Hill) has been changed to make sure they last for exactly the amount of rounds chosen
     - "Disable CS Movesets" was removed, as Character Select has the option on its own now
     - "Random" selection shouldn't pick the same minigame twice in a row anymore, and it will shuffle through all minigames (except Duel) before picking the duplicates
@@ -75,6 +78,7 @@ v1.2 (WIP)
             - In addition, "Confirm Duelers" was changed to green.
         - Players with full health will now have a sparkly trail.
         - "Sudden Death!" is now displayed on the sidebar when Sudden Death is active.
+        - Players not involved in the duel will either have a blank description or just their team name.
         - Changed the description to provide more information.
     - Koopa Keep:
         - The ground and walls in the underground area no longer have camera collision
@@ -86,7 +90,7 @@ v1.2 (WIP)
     - Fixed rejoining not working if you rejoin before you're marked as disconnected
     - Fixed Final Duel with teams picking two people on the same team
     - Fixed the ending only showing one player from the winning team of a Final Duel
-    - Fixed new players sometimes being un-eliminated by default, causing the music in certain minigames to briefly change
+    - Maybe fixed new players sometimes being un-eliminated by default, causing the music in certain minigames to briefly change
     - Maybe fixed player spawn positions sometimes not being synced between players
     - More desyncs will be corrected automatically; you can also say "desync" in chat to attempt an automatic fix
     - Fixed some collision issues on Toad Town and Koopa Keep
@@ -103,6 +107,7 @@ v1.2 (WIP)
 - Backend Changes
     - The sound folder was reduced by over 20 MB!!!
         - This was done by compressing/trimming the gigantic audio files (THANK YOU SQUISHY!!!)
+    - Completely reworked how information about each game is stored- much less stuff is hardcoded now
     - Fixed players spawning out of bounds in Red Light, Green Light if there were 32 players or more present (of course, this doesn't matter in the base game...)
 
 v1.1
