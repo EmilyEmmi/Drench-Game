@@ -1586,6 +1586,9 @@ function act_end_sequence(m)
         end
         if m.actionTimer == 42 then
             play_character_sound(m, CHAR_SOUND_HERE_WE_GO)
+            if _G.betterCoins and m.playerIndex == 0 then
+                _G.betterCoins.reward_user_coins(250)
+            end
         end
     else
         m.marioObj.header.gfx.node.flags = m.marioObj.header.gfx.node.flags | GRAPH_RENDER_INVISIBLE
@@ -1826,3 +1829,14 @@ function on_chat_message(m, msg)
     return true
 end
 hook_event(HOOK_ON_CHAT_MESSAGE, on_chat_message)
+
+-- Better Coins Support
+if _G.betterCoins then
+    _G.betterCoins.set_romhack_data("drench-game", {
+        [LEVEL_LOBBY] = {
+            [1] = {
+                shopkeeper = {x = -2857, y = -1747, z = -2797, yaw = 0x2000}
+            }
+        }
+    })
+end
